@@ -54,6 +54,7 @@ from legal_api.services.authz import cache
 from legal_api.translations import babel
 from legal_api.utils.auth import jwt
 from legal_api.utils.run_version import get_run_version
+from legal_api.utils.security_headers import apply_security_headers
 from registry_schemas import __version__ as registry_schemas_version
 from structured_logging import StructuredLogging
 
@@ -104,11 +105,11 @@ def create_app(environment: str = os.getenv("DEPLOYMENT_ENV", "production"), **k
 
     @app.after_request
     def add_version(response: Response):
-        """Add the api and schema version to the response headers."""
+        """Add version and HTTP security headers to every response."""
         version = get_run_version()
         response.headers["API"] = f"legal_api/{version}"
         response.headers["SCHEMAS"] = f"registry_schemas/{registry_schemas_version}"
-        return response
+        return apply_security_headers(response)
 
     register_shellcontext(app)
 
