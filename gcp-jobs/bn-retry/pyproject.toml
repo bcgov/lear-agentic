@@ -11,10 +11,10 @@ dependencies = [
     "requests (>=2.32.3,<3.0.0)",
     "python-dotenv (>=1.1.0,<2.0.0)",
     "simple-cloudevent @ git+https://github.com/daxiom/simple-cloudevent.py.git",
-    "gcp-queue @ git+https://github.com/bcgov/sbc-connect-common.git@main#subdirectory=python/gcp-queue",
-    "structured-logging @ git+https://github.com/bcgov/sbc-connect-common.git@main#subdirectory=python/structured-logging",
-    "business-model @ git+https://github.com/bcgov/lear.git@main#subdirectory=python/common/business-registry-model",
-    "cloud-sql-connector @ git+https://github.com/bcgov/sbc-connect-common.git@main#subdirectory=python/cloud-sql-connector"
+    "gcp-queue @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/gcp-queue",
+    "structured-logging @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/structured-logging",
+    "business-model",
+    "cloud-sql-connector @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/cloud-sql-connector"
 ]
 
 
@@ -166,3 +166,6 @@ exclude_lines = [
     "if 0:",
     'if __name__ == "__main__":',
 ]
+
+[tool.poetry.dependencies]
+business-model = { path = "../../python/common/business-registry-model", develop = true }
