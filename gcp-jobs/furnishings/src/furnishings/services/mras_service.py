@@ -42,7 +42,16 @@ class MrasService:
             )
             if response.status_code != HTTPStatus.OK:
                 return None
-            xml_content = etree.fromstring(response.content)  # pylint: disable=c-extension-no-member
+            # Explicit safe parser: disable entity resolution and network access (CWE-611 / VULN-005).
+            # Same hardening as legal-api MrasService (VULN-004).
+            safe_parser = etree.XMLParser(  # pylint: disable=c-extension-no-member
+                resolve_entities=False,
+                no_network=True,
+            )
+            xml_content = etree.fromstring(  # pylint: disable=c-extension-no-member
+                response.content,
+                parser=safe_parser,
+            )
             registered_jurisdictions_info = xml_content.xpath(
                 ".//mras:Jurisdiction[mras:TargetProfileID]",
                 namespaces=MrasService.NAMESPACE
