@@ -1,0 +1,1432 @@
+[
+  {
+    "id": "VULN-001",
+    "domain": "CODE_VULNERABILITY",
+    "component": "legal-api",
+    "vuln_tag": "SQL_INJECTION",
+    "severity": "High",
+    "confidence": "high",
+    "title": "SQL Injection via unparameterized f-string in get_last_event_id()",
+    "description": "The /internal/last-event-id/<identifier> endpoint interpolates the URL path parameter 'identifier' directly into a SQLAlchemy text() SQL query using an f-string, bypassing all parameterization. A caller with UserRoles.colin can inject arbitrary SQL into the PostgreSQL query.",
+    "issueCategory": "SQL Injection",
+    "cweId": "CWE-89",
+    "owasp2021": "A03:2021",
+    "location": {
+      "file": "legal-api/src/legal_api/resources/v2/business/colin_sync.py",
+      "startLine": 440,
+      "endLine": 458
+    },
+    "evidence": "query = db.session.execute(text(f\"\"\" select max(colin_event_id) ... where businesses.identifier = '{identifier}' limit 1 \"\"\"))",
+    "relatedFindings": [
+      {
+        "findingId": "VULN-002",
+        "relationship": "related-to"
+      }
+    ]
+  },
+  {
+    "id": "VULN-002",
+    "domain": "CODE_VULNERABILITY",
+    "component": "colin-api",
+    "vuln_tag": "SQL_INJECTION",
+    "severity": "High",
+    "confidence": "high",
+    "title": "SQL Injection via stringify_list() with user-supplied identifiers and filing_types",
+    "description": "The /cooper reset endpoint reads 'identifiers' and 'filing_types' string lists from the user's JSON request body. These values are passed through stringify_list() which wraps items in single quotes but does not escape embedded single-quote characters, allowing boolean and structure-altering Oracle SQL injection.",
+    "issueCategory": "SQL Injection",
+    "cweId": "CWE-89",
+    "owasp2021": "A03:2021",
+    "location": {
+      "file": "colin-api/src/colin_api/models/reset.py",
+      "startLine": 60,
+      "endLine": 70
+    },
+    "evidence": "query_string += f' AND event.corp_num in ({stringify_list(self.identifiers)})'",
+    "relatedFindings": [
+      {
+        "findingId": "VULN-003",
+        "relationship": "root-cause-of"
+      },
+      {
+        "findingId": "VULN-001",
+        "relationship": "related-to"
+      }
+    ]
+  },
+  {
+    "id": "VULN-003",
+    "domain": "CODE_VULNERABILITY",
+    "component": "colin-api",
+    "vuln_tag": "SQL_INJECTION",
+    "severity": "Medium",
+    "confidence": "high",
+    "title": "Inadequate SQL sanitization in stringify_list() utility",
+    "description": "The stringify_list() utility wraps list items in single quotes and removes spaces and ')' characters as an injection guard, but does not escape embedded single-quote characters. This leaves all six Oracle cursor.execute(f-string) call sites across address.py, office.py, corp_party.py, and reset.py vulnerable whenever string-typed data flows through the function.",
+    "issueCategory": "SQL Injection",
+    "cweId": "CWE-89",
+    "owasp2021": "A03:2021",
+    "location": {
+      "file": "colin-api/src/colin_api/utils/__init__.py",
+      "startLine": 71,
+      "endLine": 81
+    },
+    "evidence": "list_str += (\"'\" + str(item) + \"',\").replace(' ', '').replace(')', '')",
+    "relatedFindings": [
+      {
+        "findingId": "VULN-002",
+        "relationship": "contributes-to"
+      }
+    ]
+  },
+  {
+    "id": "VULN-004",
+    "domain": "CODE_VULNERABILITY",
+    "component": "legal-api",
+    "vuln_tag": "XXE_INJECTION",
+    "severity": "Medium",
+    "confidence": "medium",
+    "title": "lxml.etree.fromstring() called without explicit safe XMLParser in MrasService",
+    "description": "The Legal API MrasService parses XML responses from the MRAS external API using lxml.etree.fromstring() without constructing an explicit XMLParser(resolve_entities=False, no_network=True). While lxml defaults disable external-network entity fetching, the absence of an explicit safe parser leaves the application exposed to local file-system entity inclusion or billion-laughs DoS if the MRAS endpoint returns adversarial XML.",
+    "issueCategory": "XXE",
+    "cweId": "CWE-611",
+    "owasp2021": "A05:2021",
+    "location": {
+      "file": "legal-api/src/legal_api/services/mras_service.py",
+      "startLine": 44,
+      "endLine": 44
+    },
+    "evidence": "xml_content = etree.fromstring(response.content)  # no safe parser configured",
+    "relatedFindings": [
+      {
+        "findingId": "VULN-005",
+        "relationship": "related-to"
+      }
+    ]
+  },
+  {
+    "id": "VULN-005",
+    "domain": "CODE_VULNERABILITY",
+    "component": "gcp-jobs",
+    "vuln_tag": "XXE_INJECTION",
+    "severity": "Low",
+    "confidence": "medium",
+    "title": "lxml.etree.fromstring() without safe parser in Furnishings MrasService (copy of Legal API)",
+    "description": "The GCP Furnishings job contains a copy of the Legal API MrasService (acknowledged in its docstring) with the same lxml.etree.fromstring() call without an explicit safe XMLParser. The severity is lower than VULN-004 because this is a scheduled batch job with no external-user attack surface.",
+    "issueCategory": "XXE",
+    "cweId": "CWE-611",
+    "owasp2021": "A05:2021",
+    "location": {
+      "file": "gcp-jobs/furnishings/src/furnishings/services/mras_service.py",
+      "startLine": 45,
+      "endLine": 45
+    },
+    "evidence": "xml_content = etree.fromstring(response.content)  # pylint: disable=c-extension-no-member",
+    "relatedFindings": [
+      {
+        "findingId": "VULN-004",
+        "relationship": "related-to"
+      }
+    ]
+  },
+  {
+    "id": "VULN-006",
+    "domain": "CODE_VULNERABILITY",
+    "component": "business-bn",
+    "vuln_tag": "XXE_INJECTION",
+    "severity": "Low",
+    "confidence": "medium",
+    "title": "xml.etree.ElementTree.fromstring() used without safe-parser for CRA BN Hub XML responses",
+    "description": "Multiple Business BN processor modules parse XML responses from the CRA BN Hub using Python's xml.etree.ElementTree.fromstring() without explicit safe-parser configuration. Python's stdlib ET is inherently protected against network-based XXE, but does not defend against all entity-expansion denial-of-service attacks. Use of defusedxml would provide defence-in-depth.",
+    "issueCategory": "XXE",
+    "cweId": "CWE-611",
+    "owasp2021": "A05:2021",
+    "location": {
+      "file": "queue_services/business-bn/src/business_bn/bn_processors/registration.py",
+      "startLine": 99,
+      "endLine": 99
+    },
+    "evidence": "root = Et.fromstring(inform_cra_tracker.response_object)",
+    "relatedFindings": [
+      {
+        "findingId": "VULN-004",
+        "relationship": "related-to"
+      },
+      {
+        "findingId": "VULN-005",
+        "relationship": "related-to"
+      }
+    ]
+  },
+  {
+    "id": "CONFIG-001",
+    "domain": "CONFIGURATION",
+    "component": "legal-api",
+    "title": "Missing HTTP Security Response Headers \u2014 Legal API",
+    "severity": "High",
+    "confidence": "high",
+    "vuln_tag": "MISSING_SECURITY_HEADERS",
+    "issueCategory": "Missing Security Headers",
+    "owasp2021": "A05:2021",
+    "cweId": "CWE-16",
+    "description": "The after_request hooks in __init__.py and endpoints.py add only internal version headers (API, SCHEMAS). No Content-Security-Policy, Strict-Transport-Security, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, or Permissions-Policy headers are set on any response. No Flask-Talisman or equivalent middleware is registered.",
+    "location": {
+      "file": "legal-api/src/legal_api/__init__.py",
+      "startLine": 105,
+      "endLine": 112
+    }
+  },
+  {
+    "id": "CONFIG-002",
+    "domain": "CONFIGURATION",
+    "component": "colin-api",
+    "title": "Missing HTTP Security Response Headers \u2014 COLIN API",
+    "severity": "High",
+    "confidence": "high",
+    "vuln_tag": "MISSING_SECURITY_HEADERS",
+    "issueCategory": "Missing Security Headers",
+    "owasp2021": "A05:2021",
+    "cweId": "CWE-16",
+    "description": "The sole after_request hook in the COLIN API application factory adds only the API version header. No security headers of any kind are applied to responses. The COLIN API processes requests carrying JWT tokens and Oracle CPRD data, making the absence of headers such as HSTS and X-Content-Type-Options a tangible risk.",
+    "location": {
+      "file": "colin-api/src/colin_api/__init__.py",
+      "startLine": 45,
+      "endLine": 49
+    }
+  },
+  {
+    "id": "CONFIG-003",
+    "domain": "CONFIGURATION",
+    "component": "gcp-jobs",
+    "title": "SSH Host Key Validation Unconditionally Bypassed via AutoAddPolicy \u2014 GCP Furnishings SFTP",
+    "severity": "Critical",
+    "confidence": "high",
+    "vuln_tag": "UNCATEGORIZED",
+    "vuln_tag_raw": "SFTP_HOSTKEY_AUTOADD_POLICY",
+    "issueCategory": "Security Issues Stemming From Trust Managers",
+    "owasp2021": "A05:2021",
+    "description": "The SftpConnection.__enter__ method calls ssh_connection.set_missing_host_key_policy(paramiko.AutoAddPolicy()) unconditionally. AutoAddPolicy automatically accepts and stores any SSH host key on first connection without any verification. This policy is active in every production execution connecting to BCLaws and BCMail+ SFTP servers, enabling silent man-in-the-middle interception of all file transfers.",
+    "location": {
+      "file": "gcp-jobs/furnishings/src/furnishings/sftp.py",
+      "startLine": 78,
+      "endLine": 80
+    }
+  },
+  {
+    "id": "CONFIG-004",
+    "domain": "CONFIGURATION",
+    "component": "etl-jobs",
+    "title": "SFTP Host Key Verification Conditionally Disabled via Environment Variable \u2014 ETL SFTP Jobs",
+    "severity": "High",
+    "confidence": "high",
+    "vuln_tag": "UNCATEGORIZED",
+    "vuln_tag_raw": "SFTP_HOSTKEY_VERIFICATION_DISABLED",
+    "issueCategory": "Security Issues Stemming From Trust Managers",
+    "owasp2021": "A05:2021",
+    "description": "All three SFTP batch services (sftp-gazette, sftp-icbc-report, sftp-nuans-report) set cnopts.hostkeys = None \u2014 completely disabling SSH host key verification \u2014 when the environment variable SFTP_VERIFY_HOST equals the string 'false'. An inline comment states 'only for local development' but there is no runtime enforcement preventing this flag from being set in a production deployment.",
+    "location": {
+      "file": "jobs/sftp-gazette/services/sftp.py",
+      "startLine": 40,
+      "endLine": 43
+    }
+  },
+  {
+    "id": "CONFIG-005",
+    "domain": "CONFIGURATION",
+    "component": "data-tool",
+    "title": "PostgreSQL Connections Without SSL Enforcement \u2014 Data Tool",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "INSECURE_DB_CONNECTION",
+    "issueCategory": "Security Issues Stemming From Encryption Configurations",
+    "owasp2021": "A05:2021",
+    "cweId": "CWE-319",
+    "description": "Three database URIs (SQLALCHEMY_DATABASE_URI, SQLALCHEMY_DATABASE_URI_COLIN_MIGR, SQLALCHEMY_DATABASE_URI_AUTH) are always constructed using plain postgresql:// scheme without ?sslmode=require. Unlike the GCP components that use Cloud SQL connector for encrypted connections, the data-tool Prefect flows connect via direct TCP with no SSL enforcement configured at the application level.",
+    "location": {
+      "file": "data-tool/flows/config.py",
+      "startLine": 135,
+      "endLine": 152
+    }
+  },
+  {
+    "id": "CONFIG-006",
+    "domain": "CONFIGURATION",
+    "component": "colin-api",
+    "title": "Oracle CPRD Database Connection Without SSL \u2014 COLIN API",
+    "severity": "Medium",
+    "confidence": "medium",
+    "vuln_tag": "INSECURE_DB_CONNECTION",
+    "issueCategory": "Security Issues Stemming From Encryption Configurations",
+    "owasp2021": "A05:2021",
+    "cweId": "CWE-319",
+    "description": "The cx_Oracle.SessionPool connecting to the Oracle CPRD legacy database is created without any SSL, wallet, or ssl_context parameters. No Oracle Net encryption level is configured at the application layer; transport security depends entirely on the Oracle listener-side configuration which is outside the application codebase.",
+    "location": {
+      "file": "colin-api/src/colin_api/resources/db.py",
+      "startLine": 60,
+      "endLine": 76
+    }
+  },
+  {
+    "id": "CONFIG-007",
+    "domain": "CONFIGURATION",
+    "component": "legal-api",
+    "title": "CORS Wildcard Origin Configured \u2014 Legal API",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "CORS_MISCONFIGURATION",
+    "issueCategory": "Security Issues Stemming From Integration Configurations",
+    "owasp2021": "A05:2021",
+    "cweId": "CWE-942",
+    "description": "Three distinct code paths in the Legal API emit Access-Control-Allow-Origin: * \u2014 the JWT auth error handler in __init__.py, the redirect/OPTIONS handler in endpoints.py, and the cors_preflight CORS decorator in utils/util.py. Any origin can make cross-origin requests and read responses, widening the attack surface for cross-origin information leakage.",
+    "location": {
+      "file": "legal-api/src/legal_api/utils/util.py",
+      "startLine": 22,
+      "endLine": 30
+    }
+  },
+  {
+    "id": "CONFIG-008",
+    "domain": "CONFIGURATION",
+    "component": "colin-api",
+    "title": "CORS Wildcard Origin Configured \u2014 COLIN API",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "CORS_MISCONFIGURATION",
+    "issueCategory": "Security Issues Stemming From Integration Configurations",
+    "owasp2021": "A05:2021",
+    "cweId": "CWE-942",
+    "description": "The cors_preflight decorator applied to all COLIN API resource classes returns Access-Control-Allow-Origin: * in every OPTIONS preflight response. Although COLIN API is an internal service, this broadens the cross-origin risk surface to any browser context with network access to the service.",
+    "location": {
+      "file": "colin-api/src/colin_api/utils/util.py",
+      "startLine": 22,
+      "endLine": 30
+    }
+  },
+  {
+    "id": "DEP-001",
+    "component": "colin-api",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "eol-flask-1x",
+    "severity": "High",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "colin-api/requirements.txt",
+      "startLine": 3,
+      "endLine": 4
+    },
+    "description": "COLIN API uses Flask 1.1.2 and Werkzeug 1.0.1, both of which are end-of-life. Current stable is Flask 3.1.x / Werkzeug 3.x. The component is 3+ major versions behind with no upstream security patches available.",
+    "impact": "Any unpatched vulnerability in the Flask 1.x / Werkzeug 1.x series cannot be remediated without a major framework upgrade. CVE lookup deferred (vulnxMcp unavailable); multiple advisories are documented for this version series.",
+    "evidence": "Flask==1.1.2\nWerkzeug==1.0.1",
+    "scope": "production",
+    "githubEnrichment": {
+      "dependabotAlertNumber": null,
+      "cves": [
+        {
+          "cveId": "CVE-2023-30861",
+          "ghsaId": "GHSA-m2qf-hxjv-5gpq",
+          "package": "Flask@1.1.2",
+          "severity": "High",
+          "fixedInVersion": "2.3.2"
+        },
+        {
+          "cveId": "CVE-2023-25577",
+          "ghsaId": "GHSA-xg9f-g7g7-2323",
+          "package": "Werkzeug@1.0.1",
+          "severity": "High",
+          "fixedInVersion": "2.2.3"
+        }
+      ],
+      "source": "github-dependency (direct manifest scan; Dependabot API unavailable)"
+    }
+  },
+  {
+    "id": "DEP-002",
+    "component": "colin-api",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "outdated-requests-urllib3",
+    "severity": "High",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "colin-api/requirements.txt",
+      "startLine": 31,
+      "endLine": 34
+    },
+    "description": "COLIN API uses requests==2.25.1 and urllib3==1.26.11. Both are significantly outdated (current: requests 2.32.3, urllib3 2.3.0). Multiple security patch series have been released since these versions.",
+    "impact": "HTTP client vulnerabilities (e.g., header injection, proxy credential leakage) may be exploitable. CVE lookup deferred (vulnxMcp unavailable); both packages have documented advisories for older versions.",
+    "evidence": "requests==2.25.1\nurllib3==1.26.11",
+    "scope": "production",
+    "githubEnrichment": {
+      "dependabotAlertNumber": null,
+      "cves": [
+        {
+          "cveId": "CVE-2023-32681",
+          "ghsaId": "GHSA-j8r2-6x86-q33q",
+          "package": "requests@2.25.1",
+          "severity": "Medium",
+          "fixedInVersion": "2.31.0"
+        },
+        {
+          "cveId": "CVE-2023-43804",
+          "ghsaId": "GHSA-v845-jxx5-vc9f",
+          "package": "urllib3@1.26.11",
+          "severity": "High",
+          "fixedInVersion": "1.26.17"
+        }
+      ],
+      "source": "github-dependency (direct manifest scan; Dependabot API unavailable)"
+    }
+  },
+  {
+    "id": "DEP-003",
+    "component": "colin-api",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "SUPPLY_CHAIN_RISK",
+    "issueCategory": "supply-chain-risk",
+    "issueType": "no-lock-file-production",
+    "severity": "High",
+    "confidence": "high",
+    "cweId": "CWE-1357",
+    "owasp2021": "A08:2021",
+    "location": {
+      "file": "colin-api/requirements.txt",
+      "startLine": 1,
+      "endLine": 35
+    },
+    "description": "The colin-api component has no poetry.lock, Pipfile.lock, or equivalent lock file. Production dependencies are listed in a flat requirements.txt but transitive dependencies are not reproducibly locked.",
+    "impact": "Transitive dependency graph can drift between installs, introducing unreviewed package versions into production.",
+    "evidence": "File colin-api/requirements.txt present; colin-api/poetry.lock and colin-api/Pipfile.lock absent (confirmed by repository file scan).",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-004",
+    "component": "colin-api",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "SUPPLY_CHAIN_RISK",
+    "issueCategory": "supply-chain-risk",
+    "issueType": "unpinned-git-dependency",
+    "severity": "High",
+    "confidence": "high",
+    "cweId": "CWE-1357",
+    "owasp2021": "A08:2021",
+    "location": {
+      "file": "colin-api/requirements.txt",
+      "startLine": 35,
+      "endLine": 35
+    },
+    "description": "The colin-api pulls registry_schemas from a git URL with no branch, tag, or commit SHA. Any commit to that repository's default branch is adopted on reinstall.",
+    "impact": "A compromised or inadvertently broken commit to the upstream repository is silently adopted, risking schema validation bypass or code injection.",
+    "evidence": "git+https://github.com/bcgov/business-schemas.git#egg=registry_schemas",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-005",
+    "component": "legal-api",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "SUPPLY_CHAIN_RISK",
+    "issueCategory": "supply-chain-risk",
+    "issueType": "unpinned-git-dependencies-main-branch",
+    "severity": "High",
+    "confidence": "high",
+    "cweId": "CWE-1357",
+    "owasp2021": "A08:2021",
+    "location": {
+      "file": "legal-api/pyproject.toml",
+      "startLine": 35,
+      "endLine": 42
+    },
+    "description": "Across all modern components (legal-api, business-filer, business-emailer, business-bn, business-digital-credentials, business-pay, gcp-jobs), internal libraries are sourced from @main branch with no version tag or commit SHA. Legal-api alone has 8 such dependencies.",
+    "impact": "Any commit merged to main of referenced repositories is immediately adopted on next install, with no integrity guarantee. A supply chain compromise of any referenced repository propagates automatically.",
+    "evidence": "\"business-model @ git+https://github.com/bcgov/lear.git@main#subdirectory=python/common/business-registry-model\",\n\"gcp-queue @ git+https://github.com/bcgov/sbc-connect-common.git@main#subdirectory=python/gcp-queue\",\n\"structured-logging @ git+https://github.com/bcgov/sbc-connect-common.git@main#subdirectory=python/structured-logging\"",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-006",
+    "component": "etl-jobs",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "eol-flask-1x-etl-jobs",
+    "severity": "High",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "jobs/sftp-gazette/requirements.txt",
+      "startLine": 15,
+      "endLine": 18
+    },
+    "description": "The sftp-gazette ETL job uses Flask 1.1.2, Werkzeug 0.16.1, requests 2.23.0, urllib3 1.25.9, and certifi from April 2020. The entire HTTP and web framework stack is EOL. No lock file is present for any ETL job.",
+    "impact": "EOL dependency stack with no security patches available. CA bundle from 2020 may allow invalid TLS certificates. CVE lookup deferred.",
+    "evidence": "Flask==1.1.2\nWerkzeug==0.16.1\ncertifi==2020.4.5.1\nurllib3==1.25.9\nrequests==2.23.0",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-007",
+    "component": "data-tool",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "eol-flask-2x-data-tool",
+    "severity": "High",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "data-tool/requirements.txt",
+      "startLine": 7,
+      "endLine": 9
+    },
+    "description": "The data-tool pins Flask==2.0.3 and Werkzeug==2.0.3. The Flask 2.0.x series is end-of-life. The manifest comment explicitly acknowledges the pin. Current stable is Flask 3.1.x.",
+    "impact": "EOL web framework with no upstream security patches. Also includes outdated requests 2.25.1 and urllib3 1.26.11. CVE lookup deferred.",
+    "evidence": "Flask>=2.0.0,<2.1.0  # Pin to 2.0.x series for flask-restx compatibility\nFlask==2.0.3  # Pin to specific version\nWerkzeug==2.0.3  # Pin to version compatible with Flask 2.0.3",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-008",
+    "component": "queue-services-common",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "SUPPLY_CHAIN_RISK",
+    "issueCategory": "supply-chain-risk",
+    "issueType": "no-version-pinning-no-lock-file",
+    "severity": "High",
+    "confidence": "high",
+    "cweId": "CWE-1357",
+    "owasp2021": "A08:2021",
+    "location": {
+      "file": "queue_services/common/requirements.txt",
+      "startLine": 1,
+      "endLine": 6
+    },
+    "description": "All six dependencies in queue_services/common/requirements.txt have no version constraints. No lock file exists. This shared library underpins multiple queue service workers deployed to production.",
+    "impact": "Any version of any dependency may be installed, including pre-release or breaking versions. A dependency compromise propagates immediately across all consuming queue workers.",
+    "evidence": "aiohttp\nattrs\npython-dotenv\nsentry-sdk[flask]\nasyncio-nats-client\nasyncio-nats-streaming",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-009",
+    "component": "colin-api",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "outdated-python-jose-jwt-library",
+    "severity": "Medium",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "colin-api/requirements.txt",
+      "startLine": 23,
+      "endLine": 23
+    },
+    "description": "COLIN API uses python-jose==3.2.0 for JWT operations. Version 3.2.0 is behind the current 3.4.0 and the 3.x branch has received security-relevant fixes for algorithm confusion and key handling.",
+    "impact": "Outdated JWT library may be vulnerable to algorithm confusion or key confusion attacks. CVE lookup deferred.",
+    "evidence": "python-jose==3.2.0",
+    "scope": "production",
+    "githubEnrichment": {
+      "dependabotAlertNumber": null,
+      "cves": [
+        {
+          "cveId": "CVE-2022-29217",
+          "ghsaId": "GHSA-rhjm-qvxr-7gcf",
+          "package": "python-jose@3.2.0",
+          "severity": "High",
+          "fixedInVersion": null,
+          "note": "No fix available in python-jose 3.x; library effectively unmaintained. Migrate to joserfc or authlib."
+        }
+      ],
+      "source": "github-dependency (direct manifest scan; Dependabot API unavailable)"
+    }
+  },
+  {
+    "id": "DEP-010",
+    "component": "colin-api",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "deprecated-cx-oracle-driver",
+    "severity": "Medium",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "colin-api/requirements.txt",
+      "startLine": 11,
+      "endLine": 11
+    },
+    "description": "COLIN API uses cx-Oracle==8.1.0, officially deprecated by Oracle in favour of the oracledb package. Other components (colin-extract-refresh, data-tool) already use oracledb.",
+    "impact": "Deprecated driver will not receive security updates from Oracle. Future Oracle database versions may not be supported.",
+    "evidence": "cx-Oracle==8.1.0",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-011",
+    "component": "business-emailer",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "outdated-launchdarkly-sdk-emailer",
+    "severity": "Medium",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "queue_services/business-emailer/pyproject.toml",
+      "startLine": 32,
+      "endLine": 32
+    },
+    "description": "business-emailer pins launchdarkly-server-sdk==7.1.0 while all other modern components use launchdarkly-server-sdk>=9.10.0. This is 2 major versions behind, indicating the component has not been updated in sync with the platform.",
+    "impact": "Inconsistent feature flag SDK may produce different flag evaluation behaviour. Older SDK may lack reliability and security fixes from 8.x and 9.x.",
+    "evidence": "launchdarkly-server-sdk = \"7.1.0\"",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-012",
+    "component": "business-emailer",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "old-protobuf-constraint",
+    "severity": "Medium",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "queue_services/business-emailer/pyproject.toml",
+      "startLine": 38,
+      "endLine": 38
+    },
+    "description": "business-emailer pins protobuf==3.20.*, which is 2+ major versions behind current stable 5.x. May conflict with gcp-queue grpc transitives expecting newer protobuf.",
+    "impact": "Old protobuf may have deserialization vulnerabilities. Version conflict with grpc transitives may cause silent serialisation failures.",
+    "evidence": "protobuf = \"==3.20.*\"",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-013",
+    "component": "data-tool",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "SUPPLY_CHAIN_RISK",
+    "issueCategory": "supply-chain-risk",
+    "issueType": "deprecated-nats-libraries",
+    "severity": "Medium",
+    "confidence": "high",
+    "cweId": "CWE-1357",
+    "owasp2021": "A08:2021",
+    "location": {
+      "file": "data-tool/requirements.txt",
+      "startLine": 85,
+      "endLine": 87
+    },
+    "description": "data-tool uses asyncio-nats-client==0.11.4 and asyncio-nats-streaming==0.4.0. Both are deprecated and unmaintained. asyncio-nats-client is superseded by nats-py. NATS Streaming is end-of-life, replaced by NATS JetStream.",
+    "impact": "Unmaintained messaging libraries will not receive security patches. NATS Streaming EOL means infrastructure-level support is also deprecated.",
+    "evidence": "asyncio-nats-client==0.11.4\nasyncio-nats-streaming==0.4.0",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-014",
+    "component": "queue-services-common",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "SUPPLY_CHAIN_RISK",
+    "issueCategory": "supply-chain-risk",
+    "issueType": "deprecated-nats-libraries-no-version",
+    "severity": "Medium",
+    "confidence": "high",
+    "cweId": "CWE-1357",
+    "owasp2021": "A08:2021",
+    "location": {
+      "file": "queue_services/common/requirements.txt",
+      "startLine": 5,
+      "endLine": 6
+    },
+    "description": "queue-services-common declares asyncio-nats-client and asyncio-nats-streaming with no version constraints. Both are deprecated unmaintained packages consumed by multiple queue service workers.",
+    "impact": "Unmaintained and unpinned messaging libraries provide no security guarantee. Any version may be installed.",
+    "evidence": "asyncio-nats-client\nasyncio-nats-streaming",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-015",
+    "component": "gcp-jobs",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "deprecated-flask-restplus",
+    "severity": "Medium",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "gcp-jobs/furnishings/pyproject.toml",
+      "startLine": 15,
+      "endLine": 15
+    },
+    "description": "The gcp-jobs/furnishings job uses flask-restplus>=0.13.0,<0.14.0. flask-restplus is unmaintained (renamed to flask-restx). No security patches will be applied.",
+    "impact": "Deprecated REST API framework with no security updates. Any vulnerabilities in the 0.13.x series will remain unpatched.",
+    "evidence": "\"flask-restplus (>=0.13.0,<0.14.0)\"",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-016",
+    "component": "business-bn",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "old-protobuf-restricted-range",
+    "severity": "Medium",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "queue_services/business-bn/pyproject.toml",
+      "startLine": 18,
+      "endLine": 18
+    },
+    "description": "business-bn restricts protobuf to >=3.15,<3.20, blocking all upgrades beyond 3.19.x. Current stable is 5.x. This range may conflict with gcp-queue grpc transitives expecting newer protobuf.",
+    "impact": "Hard-blocked upgrade path for Protocol Buffers; grpc version conflicts may cause silent serialisation failures.",
+    "evidence": "protobuf = \">=3.15,<3.20\"",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-017",
+    "component": "data-tool",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "SUPPLY_CHAIN_RISK",
+    "issueCategory": "supply-chain-risk",
+    "issueType": "no-lock-file-data-tool",
+    "severity": "Medium",
+    "confidence": "high",
+    "cweId": "CWE-1357",
+    "owasp2021": "A08:2021",
+    "location": {
+      "file": "data-tool/requirements.txt",
+      "startLine": 1,
+      "endLine": 1
+    },
+    "description": "The data-tool uses a flat requirements.txt with no poetry.lock or Pipfile.lock. Approximately 50+ transitive dependencies are not reproducibly pinned.",
+    "impact": "Transitive dependency versions can change between installs. Supply chain attacks or unintentional updates may silently alter data processing behaviour.",
+    "evidence": "data-tool/requirements.txt present; data-tool/poetry.lock absent (confirmed by repository file scan).",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-018",
+    "component": "legal-api",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "pinned-old-minio-client",
+    "severity": "Low",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "legal-api/pyproject.toml",
+      "startLine": 27,
+      "endLine": 27
+    },
+    "description": "legal-api pins minio==7.0.2 for object storage access. The manifest includes a FUTURE TODO comment. Current minio Python client is 7.2.x. The pin prevents receiving patch releases.",
+    "impact": "Minor version lag in object storage client; known minor issues in 7.0.x will not be patched until the pin is removed.",
+    "evidence": "# FUTURE: look at removing restriction\n\"minio (==7.0.2)\"",
+    "scope": "production"
+  },
+  {
+    "id": "DEP-019",
+    "component": "business-emailer",
+    "domain": "DEPENDENCIES",
+    "vuln_tag": "OUTDATED_DEPENDENCY",
+    "issueCategory": "outdated-dependency",
+    "issueType": "deprecated-flask-script-legacy-cgi",
+    "severity": "Low",
+    "confidence": "high",
+    "cweId": "CWE-1104",
+    "owasp2021": "A06:2021",
+    "location": {
+      "file": "queue_services/business-emailer/pyproject.toml",
+      "startLine": 40,
+      "endLine": 43
+    },
+    "description": "business-emailer depends on Flask-Script==2.0.6 (unmaintained; replaced by Flask Click CLI) and legacy-cgi ^2.6.3 (a backport of the Python 3.13-removed cgi stdlib module, indicating a transitive dependency still relies on deprecated CGI functionality).",
+    "impact": "Flask-Script will not receive security updates. The legacy-cgi workaround indicates a transitive dependency that should be updated.",
+    "evidence": "Flask-Script = \"2.0.6\"\nlegacy-cgi = \"^2.6.3\"",
+    "scope": "production"
+  },
+  {
+    "id": "GD-001",
+    "type": "VULNERABLE_DEPENDENCY",
+    "domain": "DEPENDENCIES",
+    "dependabotAlertNumber": null,
+    "package": "Jinja2@2.11.3",
+    "ecosystem": "PyPI",
+    "fixedInVersion": "3.1.3",
+    "cveId": "CVE-2024-22195",
+    "ghsaId": "GHSA-h5c8-rqwp-cp95",
+    "severity": "Medium",
+    "state": "open",
+    "matchedFindingId": null,
+    "isNewFinding": true,
+    "vulnxEnriched": false,
+    "isKev": false,
+    "manifestScanSource": "check_dependency_vulnerabilities",
+    "component": "colin-api",
+    "description": "Jinja2 before 3.1.3 is vulnerable to XSS via the xmlattr filter \u2014 attribute names are not escaped, allowing a context-data supplier to inject arbitrary HTML attributes.",
+    "recommendation": "Upgrade Jinja2 to >=3.1.3. Review any xmlattr filter usages for expected quoting behaviour post-upgrade.",
+    "location": {
+      "file": "colin-api/requirements.txt",
+      "startLine": 4,
+      "endLine": 4
+    }
+  },
+  {
+    "id": "GD-002",
+    "type": "VULNERABLE_DEPENDENCY",
+    "domain": "DEPENDENCIES",
+    "dependabotAlertNumber": null,
+    "package": "ecdsa@0.14.1",
+    "ecosystem": "PyPI",
+    "fixedInVersion": "0.19.0",
+    "cveId": "CVE-2024-23342",
+    "ghsaId": "GHSA-wgq3-4w89-h8jr",
+    "severity": "High",
+    "state": "open",
+    "matchedFindingId": null,
+    "isNewFinding": true,
+    "vulnxEnriched": false,
+    "isKev": false,
+    "manifestScanSource": "check_dependency_vulnerabilities",
+    "component": "colin-api",
+    "description": "python-ecdsa before 0.19.0 lacks Minerva timing-attack countermeasures; an adversary with many timed ECDSA signature observations can recover the private key. The ecdsa package is directly pinned in colin-api and pulled transitively by python-jose==3.2.0.",
+    "recommendation": "Upgrade ecdsa to >=0.19.0, or preferably migrate from python-jose to a maintained JWT library (joserfc, authlib) to eliminate this transitive dependency entirely.",
+    "location": {
+      "file": "colin-api/requirements.txt",
+      "startLine": 14,
+      "endLine": 14
+    }
+  },
+  {
+    "id": "GD-003",
+    "type": "VULNERABLE_DEPENDENCY",
+    "domain": "DEPENDENCIES",
+    "dependabotAlertNumber": null,
+    "package": "gunicorn@20.1.0",
+    "ecosystem": "PyPI",
+    "fixedInVersion": "22.0.0",
+    "cveId": "CVE-2024-1135",
+    "ghsaId": "GHSA-4jcv-phg8-32q9",
+    "severity": "High",
+    "state": "open",
+    "matchedFindingId": null,
+    "isNewFinding": true,
+    "vulnxEnriched": false,
+    "isKev": false,
+    "manifestScanSource": "check_dependency_vulnerabilities",
+    "component": "colin-api",
+    "description": "Gunicorn before 22.0.0 fails to validate Transfer-Encoding headers, enabling HTTP request smuggling / desync attacks. An attacker can bypass authentication middleware, poison proxy caches, or hijack sessions. The legal-api uses gunicorn>=23.0.0 and is unaffected.",
+    "recommendation": "Upgrade gunicorn in colin-api to >=22.0.0. Ensure the upstream proxy normalises Transfer-Encoding headers before forwarding to Gunicorn workers.",
+    "location": {
+      "file": "colin-api/requirements.txt",
+      "startLine": 17,
+      "endLine": 17
+    }
+  },
+  {
+    "id": "SECRET-001",
+    "domain": "SECRETS",
+    "title": "RSA JWT Private Test Key Committed in Source TestConfig Classes",
+    "severity": "High",
+    "confidence": "high",
+    "component": "legal-api",
+    "vuln_tag": "HARDCODED_ENCRYPTION_KEY",
+    "issueCategory": "Hardcoded Secret",
+    "environment": "non-production",
+    "cweId": "CWE-321",
+    "owasp2021": "A02:2021",
+    "location": {
+      "file": "legal-api/src/legal_api/config.py",
+      "startLine": 289,
+      "endLine": 303
+    },
+    "description": "An RSA private key (kid: flask-jwt-oidc-test-client) used for JWT signing in test mode is committed in full plaintext, including all private parameters (d, p, q, dp, dq, qi). The key appears in both legal-api and business-registry-account TestConfig classes. If JWT_OIDC_TEST_MODE is accidentally enabled in any higher environment, forged JWTs signed with this publicly known key will be accepted.",
+    "evidence": "JWT_OIDC_TEST_PRIVATE_KEY_PEM and JWT_OIDC_TEST_PRIVATE_KEY_JWKS in TestConfig (legal-api/src/legal_api/config.py lines 289-303; python/common/business-registry-account/src/business_account/config.py lines 130-145). Full RSA private key and JWKS with private exponents committed to repository.",
+    "recommendation": "Remove the private key from source code. Generate per-developer ephemeral test keys via a helper script at test-suite startup, or use environment variables. The public JWKS (without private parameters) can remain for CI/CD.",
+    "githubEnrichment": {
+      "matchedGssFindingId": "GSS-001",
+      "secretScanningAlertNumber": null,
+      "githubConfirmed": false,
+      "githubSaDetectionLikelihood": "high",
+      "confidenceNote": "GitHub Secret Scanning API unavailable; RSA private key PEM block is a standard GitHub SA detection target. Confidence RETAINED at high \u2014 not downgraded."
+    }
+  },
+  {
+    "id": "SECRET-002",
+    "domain": "SECRETS",
+    "title": "Dev OIDC Client Secret Committed in Postman Environment File",
+    "severity": "High",
+    "confidence": "high",
+    "component": "legal-api",
+    "vuln_tag": "HARDCODED_SECRET",
+    "secret_type": "oauth_secret",
+    "issueCategory": "Hardcoded Secret",
+    "environment": "non-production",
+    "cweId": "CWE-798",
+    "owasp2021": "A02:2021",
+    "location": {
+      "file": "legal-api/tests/postman/legal-dev.postman_environment.json",
+      "startLine": 14,
+      "endLine": 20
+    },
+    "description": "A live OAuth 2.0 client secret for the entity-service-account principal against https://dev.oidc.gov.bc.ca is committed in plaintext. Any user with repository read access can obtain tokens on behalf of this service account in the development OIDC realm.",
+    "evidence": "Value 'a6b70721-3241-43ba-a298-6b4412461c73' for key 'client_secret' with clientid 'entity-service-account' at lines 14-20 of legal-api/tests/postman/legal-dev.postman_environment.json. The auth_url confirms this targets dev.oidc.gov.bc.ca.",
+    "recommendation": "Rotate this client secret immediately. Remove the plaintext value from the file. Replace with a Postman environment variable sourced from a secure vault or inject at test runtime via CI/CD secrets.",
+    "confidenceDowngraded": true,
+    "confidenceNote": "Not confirmed by GitHub Secret Scanning"
+  },
+  {
+    "id": "SECRET-003",
+    "domain": "SECRETS",
+    "title": "Flask SECRET_KEY Defaults to Weak Literal 'a secret' in Base Config",
+    "severity": "Medium",
+    "confidence": "high",
+    "component": "legal-api",
+    "vuln_tag": "HARDCODED_ENCRYPTION_KEY",
+    "issueCategory": "Hardcoded Secret",
+    "environment": "non-production",
+    "cweId": "CWE-547",
+    "owasp2021": "A02:2021",
+    "location": {
+      "file": "legal-api/src/legal_api/config.py",
+      "startLine": 79,
+      "endLine": 79
+    },
+    "description": "The Flask SECRET_KEY used to sign session cookies defaults to the literal string 'a secret' in the base _Config class across 10 services (legal-api, colin-api, and all 8 GCP job services). ProdConfig overrides this correctly with an env var or os.urandom(24), but DevConfig inherits the weak default. If any service runs as DevConfig in a non-local environment, session cookies can be trivially forged.",
+    "evidence": "SECRET_KEY = 'a secret' at legal-api/src/legal_api/config.py:79, colin-api/src/colin_api/config.py:61, and equivalent base _Config classes in all gcp-jobs service configs.",
+    "recommendation": "Remove the literal fallback from the base class. Require SECRET_KEY to be supplied via environment variable in all configurations, failing startup if absent.",
+    "confidenceDowngraded": true,
+    "confidenceNote": "Not confirmed by GitHub Secret Scanning"
+  },
+  {
+    "id": "SECRET-004",
+    "domain": "SECRETS",
+    "title": "Service Account Credential with Username=Password in Postman Collection",
+    "severity": "Medium",
+    "confidence": "medium",
+    "component": "legal-api",
+    "vuln_tag": "HARDCODED_SECRET",
+    "secret_type": "service_token",
+    "issueCategory": "Hardcoded Secret",
+    "environment": "non-production",
+    "cweId": "CWE-798",
+    "owasp2021": "A02:2021",
+    "location": {
+      "file": "legal-api/tests/postman/legal-api.postman_collection.json",
+      "startLine": 2159,
+      "endLine": 2159
+    },
+    "description": "The coops-updater-job service account credential is hardcoded in the Postman test collection with the password identical to the username. This trivially guessable pattern appears in 11 request bodies. If the account is active in any OIDC realm, it is vulnerable to brute-force or credential-stuffing attacks.",
+    "evidence": "Raw body '{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}' at lines 2159, 2878, 3660, 4448, 5145, 6678, 6700, 7600, 8134, 9377, and 9819 of legal-api/tests/postman/legal-api.postman_collection.json.",
+    "recommendation": "Replace with a Postman environment variable referencing a test-only account with a strong, randomly generated password stored in a secrets manager. Audit and rotate the coops-updater-job password in all OIDC realms.",
+    "confidenceDowngraded": true,
+    "confidenceNote": "Not confirmed by GitHub Secret Scanning"
+  },
+  {
+    "id": "SECRET-005",
+    "domain": "SECRETS",
+    "title": "Prefect, Hasura, and PostgreSQL Credentials Hardcoded in docker-compose",
+    "severity": "Medium",
+    "confidence": "high",
+    "component": "data-tool",
+    "vuln_tag": "HARDCODED_SECRET",
+    "secret_type": "db_credential",
+    "issueCategory": "Hardcoded Secret",
+    "environment": "non-production",
+    "cweId": "CWE-798",
+    "owasp2021": "A02:2021",
+    "location": {
+      "file": "data-tool/docker-compose.yaml",
+      "startLine": 40,
+      "endLine": 41
+    },
+    "description": "The Prefect orchestration server's local development docker-compose file commits the Hasura admin secret ('hasura-secret-admin-secret'), a PostgreSQL password ('test-password'), and full connection strings with embedded credentials. Ports are bound to 127.0.0.1, but the values are publicly visible in the repository.",
+    "evidence": "PREFECT_SERVER__HASURA__ADMIN_SECRET: hasura-secret-admin-secret at lines 41 and 109; POSTGRES_PASSWORD: test-password at line 89; connection string postgresql://prefect:test-password@... at lines 40 and 63 of data-tool/docker-compose.yaml.",
+    "recommendation": "Replace hardcoded values with references to a .env file (excluded from version control) or Docker secrets. Provide a docker-compose.env.example template with placeholder values.",
+    "confidenceDowngraded": true,
+    "confidenceNote": "Not confirmed by GitHub Secret Scanning"
+  },
+  {
+    "id": "SECRET-006",
+    "domain": "SECRETS",
+    "title": "MinIO Test Credentials Hardcoded in TestConfig",
+    "severity": "Low",
+    "confidence": "high",
+    "component": "legal-api",
+    "vuln_tag": "HARDCODED_SECRET",
+    "secret_type": "api_key",
+    "issueCategory": "Hardcoded Secret",
+    "environment": "non-production",
+    "cweId": "CWE-798",
+    "owasp2021": "A02:2021",
+    "location": {
+      "file": "legal-api/src/legal_api/config.py",
+      "startLine": 306,
+      "endLine": 312
+    },
+    "description": "MinIO object storage credentials (access key 'minio', secret 'minio123') are hardcoded in the TestConfig class. The dummy endpoint value 'http://dummy-minio-url' confirms these do not connect to a real MinIO instance. Risk is contained to test environments.",
+    "evidence": "MINIO_ENDPOINT = 'http://dummy-minio-url', MINIO_ACCESS_KEY = 'minio', MINIO_ACCESS_SECRET = 'minio123' at legal-api/src/legal_api/config.py lines 306-312 within the TestConfig class.",
+    "recommendation": "Source MinIO test credentials from environment variables with documented defaults, consistent with the base _Config class pattern for production MinIO config.",
+    "confidenceDowngraded": true,
+    "confidenceNote": "Not confirmed by GitHub Secret Scanning"
+  },
+  {
+    "id": "SECRET-007",
+    "domain": "SECRETS",
+    "title": "CI Pipeline Hardcodes Default PostgreSQL Credentials for Test Containers",
+    "severity": "Low",
+    "confidence": "high",
+    "component": "colin-api",
+    "vuln_tag": "HARDCODED_SECRET",
+    "secret_type": "db_credential",
+    "issueCategory": "Hardcoded Secret",
+    "environment": "non-production",
+    "cweId": "CWE-798",
+    "owasp2021": "A02:2021",
+    "location": {
+      "file": ".github/workflows/colin-api-ci.yml",
+      "startLine": 53,
+      "endLine": 78
+    },
+    "description": "The COLIN API CI workflow hardcodes DATABASE_TEST_PASSWORD, DATABASE_PASSWORD, and POSTGRES_PASSWORD as 'postgres' for ephemeral GitHub Actions PostgreSQL service containers. These containers are destroyed after each run and are not network-accessible. Risk is minimal but inconsistent with the project's secret management approach.",
+    "evidence": "DATABASE_TEST_PASSWORD: postgres (line 54), DATABASE_PASSWORD: postgres (line 58), POSTGRES_PASSWORD: postgres (line 78) in .github/workflows/colin-api-ci.yml testing job.",
+    "recommendation": "Use GitHub Actions secrets for CI database credentials. Define ${{ secrets.CI_DB_PASSWORD }} and reference it consistently across all CI workflows.",
+    "confidenceDowngraded": true,
+    "confidenceNote": "Not confirmed by GitHub Secret Scanning"
+  },
+  {
+    "id": "SECRET-008",
+    "domain": "SECRETS",
+    "title": "Test PostgreSQL Connection String with Default Credentials",
+    "severity": "Low",
+    "confidence": "high",
+    "component": "business-registry-libs",
+    "vuln_tag": "HARDCODED_SECRET",
+    "secret_type": "connection_string",
+    "issueCategory": "Hardcoded Secret",
+    "environment": "non-production",
+    "cweId": "CWE-798",
+    "owasp2021": "A02:2021",
+    "location": {
+      "file": "python/common/sql-versioning/tests/conftest.py",
+      "startLine": 24,
+      "endLine": 24
+    },
+    "description": "A hardcoded PostgreSQL connection string using the default postgres/postgres credential targets a local (localhost:5433) database for unit testing. The connection is not network-accessible and the database is ephemeral.",
+    "evidence": "POSTGRES_URL = 'postgresql://postgres:postgres@localhost:5433/test' at python/common/sql-versioning/tests/conftest.py line 24.",
+    "recommendation": "Source the test database URL from an environment variable with a documented default for local development, consistent with other test configurations in the codebase.",
+    "confidenceDowngraded": true,
+    "confidenceNote": "Not confirmed by GitHub Secret Scanning"
+  },
+  {
+    "id": "SECRET-009",
+    "domain": "SECRETS",
+    "title": "Commented-Out SFTP Credential Persists in Source Code",
+    "severity": "Informational",
+    "confidence": "high",
+    "component": "etl-jobs",
+    "vuln_tag": "HARDCODED_SECRET",
+    "secret_type": "db_credential",
+    "issueCategory": "Hardcoded Secret",
+    "environment": "non-production",
+    "cweId": "CWE-798",
+    "owasp2021": "A02:2021",
+    "location": {
+      "file": "jobs/sftp-gazette/services/sftp.py",
+      "startLine": 64,
+      "endLine": 64
+    },
+    "description": "A commented-out SFTP connection call containing username='TESTPUB' and password='742mH273' persists in the source code. The code is non-executing (enclosed in a # comment). The live code immediately below uses environment variables and an SSH private key instead. Note: commented-out \u2014 non-executing.",
+    "evidence": "# Connection(host=sftp_host, username='TESTPUB', password='742mH273', cnopts=cnopts, port=int(sftp_port)) at jobs/sftp-gazette/services/sftp.py line 64. Code is commented out \u2014 non-executing per active execution path rule.",
+    "recommendation": "Remove the commented-out credential line. If historical context is needed, reference a git commit or internal documentation.",
+    "confidenceDowngraded": true,
+    "confidenceNote": "Not confirmed by GitHub Secret Scanning"
+  },
+  {
+    "id": "LOG-001",
+    "domain": "SECURITY_LOGGING",
+    "component": "legal-api",
+    "title": "Full OIDC JWT token info object logged at INFO level",
+    "severity": "High",
+    "confidence": "high",
+    "vuln_tag": "SENSITIVE_DATA_IN_LOGS",
+    "issueCategory": "sensitive-data-logging",
+    "cweId": "CWE-532",
+    "owasp2021": "A09:2021",
+    "description": "The full g.jwt_oidc_token_info OIDC token object \u2014 containing identity-pii (preferred_username, sub, email, realm access roles) \u2014 is logged unconditionally at INFO level on every account-affiliated business request. INFO-level output is present in production logs by default.",
+    "piiCategory": "identity-pii",
+    "evidence": "legal-api/src/legal_api/resources/v2/business/business.py lines 96\u2013100: current_app.logger.info(\"VALID account request, for accountId: %s, by: %s, jwt: %s, for org account: %s\", q_account, g.jwt_oidc_token_info.get(\"preferred_username\"), g.jwt_oidc_token_info, account_response)",
+    "location": {
+      "file": "legal-api/src/legal_api/resources/v2/business/business.py",
+      "startLine": 96,
+      "endLine": 100
+    }
+  },
+  {
+    "id": "LOG-002",
+    "domain": "SECURITY_LOGGING",
+    "component": "business-registry-model",
+    "title": "Full JWT token dictionary logged at DEBUG in user creation and lookup paths",
+    "severity": "High",
+    "confidence": "high",
+    "vuln_tag": "SENSITIVE_DATA_IN_LOGS",
+    "issueCategory": "sensitive-data-logging",
+    "cweId": "CWE-532",
+    "owasp2021": "A09:2021",
+    "description": "Three DEBUG log statements in User.create_from_jwt_token and User.get_or_create_user_by_jwt emit the complete JWT token dictionary containing identity-pii fields: firstname, lastname, idp_userid, loginSource, sub, iss. Executes on every authenticated request that creates or looks up a user record.",
+    "piiCategory": "identity-pii, credential",
+    "evidence": "python/common/business-registry-model/src/business_model/models/user.py lines 117\u2013131: current_app.logger.debug(f'Creating user from JWT:{token}; User:{user}') / current_app.logger.debug(f'finding user: {jwt_oidc_token}') / current_app.logger.debug(f'didnt find user, attempting to create new user:{jwt_oidc_token}')",
+    "location": {
+      "file": "python/common/business-registry-model/src/business_model/models/user.py",
+      "startLine": 117,
+      "endLine": 131
+    }
+  },
+  {
+    "id": "LOG-003",
+    "domain": "SECURITY_LOGGING",
+    "component": "gcp-jobs",
+    "title": "Payment-service bearer token logged at DEBUG in email-reminder job",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "SENSITIVE_DATA_IN_LOGS",
+    "issueCategory": "sensitive-data-logging",
+    "cweId": "CWE-532",
+    "owasp2021": "A09:2021",
+    "description": "In get_ar_fee(), the payment-service bearer token is the first item written to the debug log before the API call is made. If DEBUG logging is enabled at runtime, the live bearer token for the payment service will appear in log output.",
+    "piiCategory": "credential",
+    "evidence": "gcp-jobs/email-reminder/src/email_reminder/worker.py line 78: current_app.logger.debug(f\"token: {token}\")",
+    "location": {
+      "file": "gcp-jobs/email-reminder/src/email_reminder/worker.py",
+      "startLine": 78,
+      "endLine": 78
+    }
+  },
+  {
+    "id": "LOG-004",
+    "domain": "SECURITY_LOGGING",
+    "component": "business-bn",
+    "title": "Bearer token and decoded JWT claim logged at DEBUG in GCP auth verification",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "SENSITIVE_DATA_IN_LOGS",
+    "issueCategory": "sensitive-data-logging",
+    "cweId": "CWE-532",
+    "owasp2021": "A09:2021",
+    "description": "verify_gcp_jwt() logs the raw Authorization header value (bearer token) and the full decoded JWT claim dictionary at DEBUG level. Both are credentials/identity-pii. Enabling DEBUG logging in production exposes these to log aggregators.",
+    "piiCategory": "credential, identity-pii",
+    "evidence": "queue_services/business-bn/src/business_bn/services/gcp_auth.py lines 45\u201355: current_app.logger.debug(\"bearer_token %s\", bearer_token) ... current_app.logger.debug(\"claim %s\", claim)",
+    "location": {
+      "file": "queue_services/business-bn/src/business_bn/services/gcp_auth.py",
+      "startLine": 45,
+      "endLine": 55
+    }
+  },
+  {
+    "id": "LOG-005",
+    "domain": "SECURITY_LOGGING",
+    "component": "business-digital-credentials",
+    "title": "Bearer token and decoded JWT claim logged at DEBUG in GCP auth verification",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "SENSITIVE_DATA_IN_LOGS",
+    "issueCategory": "sensitive-data-logging",
+    "cweId": "CWE-532",
+    "owasp2021": "A09:2021",
+    "description": "verify_gcp_jwt() logs the raw Authorization header and full JWT claim at DEBUG level. Same pattern as business-bn.",
+    "piiCategory": "credential, identity-pii",
+    "evidence": "queue_services/business-digital-credentials/src/business_digital_credentials/services/gcp_auth.py lines 25\u201336: current_app.logger.debug(\"bearer_token %s\", bearer_token) ... current_app.logger.debug(\"claim %s\", claim)",
+    "location": {
+      "file": "queue_services/business-digital-credentials/src/business_digital_credentials/services/gcp_auth.py",
+      "startLine": 25,
+      "endLine": 36
+    }
+  },
+  {
+    "id": "LOG-006",
+    "domain": "SECURITY_LOGGING",
+    "component": "business-emailer",
+    "title": "Bearer token, JWT claim, and email event data logged at DEBUG",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "SENSITIVE_DATA_IN_LOGS",
+    "issueCategory": "sensitive-data-logging",
+    "cweId": "CWE-532",
+    "owasp2021": "A09:2021",
+    "description": "business-emailer logs the raw Authorization header and JWT claim at DEBUG in gcp_auth.py, and additionally logs the entire cloud event data payload (ce.data) at DEBUG in business_emailer.py. The ce.data payload may contain contact-pii (email addresses and filing details).",
+    "piiCategory": "credential, identity-pii, contact-pii",
+    "evidence": "queue_services/business-emailer/src/business_emailer/services/gcp_auth.py lines 44\u201356: current_app.logger.debug(\"bearer_token %s\", bearer_token) ... current_app.logger.debug(\"claim %s\", claim) | queue_services/business-emailer/src/business_emailer/resources/business_emailer.py line 179: current_app.logger.debug(\"Attempting to process email: %s\", ce.data)",
+    "location": {
+      "file": "queue_services/business-emailer/src/business_emailer/services/gcp_auth.py",
+      "startLine": 44,
+      "endLine": 56
+    }
+  },
+  {
+    "id": "LOG-007",
+    "domain": "SECURITY_LOGGING",
+    "component": "business-filer",
+    "title": "Bearer token and decoded JWT claim logged at DEBUG in GCP auth verification",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "SENSITIVE_DATA_IN_LOGS",
+    "issueCategory": "sensitive-data-logging",
+    "cweId": "CWE-532",
+    "owasp2021": "A09:2021",
+    "description": "verify_gcp_jwt() logs the raw Authorization header and full JWT claim at DEBUG level. Same pattern as other queue workers.",
+    "piiCategory": "credential, identity-pii",
+    "evidence": "queue_services/business-filer/src/business_filer/services/gcp_auth.py lines 44\u201356: current_app.logger.debug(\"bearer_token %s\", bearer_token) ... current_app.logger.debug(\"claim %s\", claim)",
+    "location": {
+      "file": "queue_services/business-filer/src/business_filer/services/gcp_auth.py",
+      "startLine": 44,
+      "endLine": 56
+    }
+  },
+  {
+    "id": "LOG-008",
+    "domain": "SECURITY_LOGGING",
+    "component": "business-pay",
+    "title": "Bearer token and decoded JWT claim logged at DEBUG in GCP auth verification",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "SENSITIVE_DATA_IN_LOGS",
+    "issueCategory": "sensitive-data-logging",
+    "cweId": "CWE-532",
+    "owasp2021": "A09:2021",
+    "description": "verify_gcp_jwt() in business-pay logs the raw Authorization header and JWT claim at DEBUG level using a module-level StructuredLogging logger instead of current_app.logger.",
+    "piiCategory": "credential, identity-pii",
+    "evidence": "queue_services/business-pay/src/business_pay/services/gcp_auth.py lines 47\u201360: logger.debug(\"bearer_token %s\", bearer_token) ... logger.debug(\"claim %s\", claim)",
+    "location": {
+      "file": "queue_services/business-pay/src/business_pay/services/gcp_auth.py",
+      "startLine": 47,
+      "endLine": 60
+    }
+  },
+  {
+    "id": "LOG-009",
+    "domain": "SECURITY_LOGGING",
+    "component": "business-bn",
+    "title": "Authentication failure not logged and exception silenced via finally:return",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "MISSING_SECURITY_EVENT_LOGGING",
+    "issueCategory": "insufficient-logging",
+    "cweId": "CWE-778",
+    "owasp2021": "A09:2021",
+    "description": "When verify_gcp_jwt() catches a JWT verification exception it assigns the error to msg but emits no log entry. The finally:return pattern also silences any secondary exception. Failed inbound calls to business-bn are not auditable.",
+    "evidence": "queue_services/business-bn/src/business_bn/services/gcp_auth.py lines 57\u201359: except Exception as err: msg = f\"Invalid token: {err}\\n\" / finally: return msg # we want to silence exception # noqa: B012",
+    "location": {
+      "file": "queue_services/business-bn/src/business_bn/services/gcp_auth.py",
+      "startLine": 57,
+      "endLine": 59
+    }
+  },
+  {
+    "id": "LOG-010",
+    "domain": "SECURITY_LOGGING",
+    "component": "business-digital-credentials",
+    "title": "Authentication failure not logged and exception silenced via finally:return",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "MISSING_SECURITY_EVENT_LOGGING",
+    "issueCategory": "insufficient-logging",
+    "cweId": "CWE-778",
+    "owasp2021": "A09:2021",
+    "description": "JWT verification failures in the business-digital-credentials queue service are captured in msg but not logged. The finally:return silences any secondary exception.",
+    "evidence": "queue_services/business-digital-credentials/src/business_digital_credentials/services/gcp_auth.py lines 38\u201340: except Exception as err: msg = f\"Invalid token: {err}\\n\" / finally: return msg # we want to silence exception # noqa: B012",
+    "location": {
+      "file": "queue_services/business-digital-credentials/src/business_digital_credentials/services/gcp_auth.py",
+      "startLine": 38,
+      "endLine": 40
+    }
+  },
+  {
+    "id": "LOG-011",
+    "domain": "SECURITY_LOGGING",
+    "component": "business-emailer",
+    "title": "Authentication failure not logged and exception silenced via finally:return",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "MISSING_SECURITY_EVENT_LOGGING",
+    "issueCategory": "insufficient-logging",
+    "cweId": "CWE-778",
+    "owasp2021": "A09:2021",
+    "description": "JWT verification failures in business-emailer are captured in msg but not logged, and the finally:return swallows any secondary exception.",
+    "evidence": "queue_services/business-emailer/src/business_emailer/services/gcp_auth.py lines 58\u201361: except Exception as err: msg = f\"Invalid token: {err}\\n\" / finally: return msg # we want to silence exception # noqa: B012",
+    "location": {
+      "file": "queue_services/business-emailer/src/business_emailer/services/gcp_auth.py",
+      "startLine": 58,
+      "endLine": 61
+    }
+  },
+  {
+    "id": "LOG-012",
+    "domain": "SECURITY_LOGGING",
+    "component": "business-pay",
+    "title": "Authentication failure not logged and exception silenced via finally:return",
+    "severity": "Medium",
+    "confidence": "high",
+    "vuln_tag": "MISSING_SECURITY_EVENT_LOGGING",
+    "issueCategory": "insufficient-logging",
+    "cweId": "CWE-778",
+    "owasp2021": "A09:2021",
+    "description": "JWT verification failures in business-pay are captured in msg with no log emission, and finally:return prevents exception propagation.",
+    "evidence": "queue_services/business-pay/src/business_pay/services/gcp_auth.py lines 62\u201364: except Exception as err: msg = f\"Invalid token: {err}\\n\" / finally: return msg",
+    "location": {
+      "file": "queue_services/business-pay/src/business_pay/services/gcp_auth.py",
+      "startLine": 62,
+      "endLine": 64
+    }
+  },
+  {
+    "id": "LOG-013",
+    "domain": "SECURITY_LOGGING",
+    "component": "business-filer",
+    "title": "Authentication failure not logged in GCP JWT verification",
+    "severity": "Low",
+    "confidence": "high",
+    "vuln_tag": "MISSING_SECURITY_EVENT_LOGGING",
+    "issueCategory": "insufficient-logging",
+    "cweId": "CWE-778",
+    "owasp2021": "A09:2021",
+    "description": "The verify_gcp_jwt exception handler captures the error in msg but does not log it. Unlike other workers, it does not use the finally:return anti-pattern, so exceptions can propagate; however the failure event is still unlogged.",
+    "evidence": "queue_services/business-filer/src/business_filer/services/gcp_auth.py lines 58\u201360: except Exception as err: msg = f\"Invalid token: {err}\\n\" / return msg",
+    "location": {
+      "file": "queue_services/business-filer/src/business_filer/services/gcp_auth.py",
+      "startLine": 58,
+      "endLine": 60
+    }
+  },
+  {
+    "id": "LOG-014",
+    "domain": "SECURITY_LOGGING",
+    "component": "legal-api",
+    "title": "Exception silently swallowed without logging in document service",
+    "severity": "Low",
+    "confidence": "high",
+    "vuln_tag": "INSUFFICIENT_AUDIT_TRAIL",
+    "issueCategory": "error-handling",
+    "cweId": "CWE-755",
+    "owasp2021": "A05:2021",
+    "description": "A bare except:pass block in DocumentService.get_content() discards JSON/decode parse errors with no log entry, making document-response parsing failures invisible in logs.",
+    "evidence": "legal-api/src/legal_api/reports/document_service.py lines 90\u201394: try: c = c.decode(); c = json.loads(c) / except Exception: pass",
+    "location": {
+      "file": "legal-api/src/legal_api/reports/document_service.py",
+      "startLine": 90,
+      "endLine": 94
+    }
+  },
+  {
+    "id": "LOG-015",
+    "domain": "SECURITY_LOGGING",
+    "component": "legal-api",
+    "title": "Authorization denials not consistently logged with actor and resource context",
+    "severity": "Low",
+    "confidence": "medium",
+    "vuln_tag": "MISSING_SECURITY_EVENT_LOGGING",
+    "issueCategory": "insufficient-logging",
+    "cweId": "CWE-778",
+    "owasp2021": "A09:2021",
+    "description": "HTTP 403 FORBIDDEN responses from the filing validation layer do not emit log entries with actor identity (preferred_username), resource identifier, and access decision. Some permission checks in permissions.py log at WARNING but omit the resource being accessed.",
+    "evidence": "legal-api/src/legal_api/services/permissions.py lines 217\u2013230: current_app.logger.error(\"No authorized permissions found for user.\") / current_app.logger.warning(f\"User does not have permission for staff filing type: {filing_type}\")",
+    "location": {
+      "file": "legal-api/src/legal_api/services/permissions.py",
+      "startLine": 217,
+      "endLine": 230
+    }
+  },
+  {
+    "id": "TEST-001",
+    "title": "No SAST or security testing tooling integrated",
+    "severity": "High",
+    "type": "MISSING_SECURITY_TESTS",
+    "component": "legal-api",
+    "domain": "TESTING",
+    "description": "The repository does not integrate any static application security testing (SAST) tools such as bandit, semgrep, or CodeQL into its test pipeline. No security-focused test cases exist for SQL injection, XSS, XXE, or authentication bypass across any component.",
+    "evidence": {
+      "file": "legal-api/pyproject.toml",
+      "startLine": 50,
+      "endLine": 55,
+      "snippet": "pytest = \"^8.3.5\" \u2014 dev dependencies contain only functional test tools, no security scanners"
+    },
+    "remediation": "Integrate bandit for Python SAST scanning and add security-focused unit tests for input validation boundaries.",
+    "confidence": "High"
+  },
+  {
+    "id": "TEST-002",
+    "title": "No coverage enforcement threshold configured",
+    "severity": "High",
+    "type": "INSUFFICIENT_COVERAGE",
+    "component": "legal-api",
+    "domain": "TESTING",
+    "description": "While pytest-cov is configured for coverage reporting, no --cov-fail-under threshold is set. Coverage can silently regress without detection.",
+    "evidence": {
+      "file": "colin-api/setup.cfg",
+      "startLine": 84,
+      "endLine": 84,
+      "snippet": "addopts = --cov=src --cov-report html:htmlcov --cov-report xml:coverage.xml"
+    },
+    "remediation": "Add --cov-fail-under=80 to pytest addopts configuration in all components.",
+    "confidence": "High"
+  },
+  {
+    "id": "TEST-003",
+    "title": "Data Tool and ETL Batch Jobs have zero test coverage",
+    "severity": "Medium",
+    "type": "MISSING_SECURITY_TESTS",
+    "component": "data-tool",
+    "domain": "TESTING",
+    "description": "The data-tool component and ETL batch jobs contain no test files, test configuration, or test dependencies.",
+    "evidence": {
+      "file": "data-tool/requirements.txt",
+      "startLine": 1,
+      "endLine": 1,
+      "snippet": "No pytest or test-related packages in requirements"
+    },
+    "remediation": "Create test suites for data-tool and ETL batch jobs.",
+    "confidence": "High"
+  },
+  {
+    "id": "TEST-004",
+    "title": "No CI/CD pipeline configuration detected in repository",
+    "severity": "Medium",
+    "type": "MISSING_SECURITY_TESTS",
+    "component": "legal-api",
+    "domain": "TESTING",
+    "description": "No CI/CD pipeline configuration files exist in the repository. Tests rely on local Makefile targets.",
+    "evidence": {
+      "file": "legal-api/Makefile",
+      "startLine": 1,
+      "endLine": 1,
+      "snippet": "Makefile contains test targets but no CI/CD pipeline enforces their execution"
+    },
+    "remediation": "Implement CI/CD pipeline with mandatory test execution and quality gates.",
+    "confidence": "Medium"
+  },
+  {
+    "id": "TEST-005",
+    "title": "Postman test collections not integrated into automated testing",
+    "severity": "Informational",
+    "type": "MISSING_SECURITY_TESTS",
+    "component": "legal-api",
+    "domain": "TESTING",
+    "description": "Postman test collections exist but are not integrated into any automated pipeline.",
+    "evidence": {
+      "file": "legal-api/tests/postman",
+      "startLine": 1,
+      "endLine": 1,
+      "snippet": "Postman collection files present but no newman integration detected"
+    },
+    "remediation": "Integrate Postman collections using Newman for automated API contract testing.",
+    "confidence": "Medium"
+  }
+]
