@@ -19,7 +19,7 @@ from flask import current_app
 
 from colin_api.models.filing import Business, Filing, Office, Party, ShareObject
 from colin_api.resources.db import DB
-from colin_api.utils import build_cooper_reset_filings_query, stringify_list
+from colin_api.utils import build_cooper_reset_filings_query, build_in_clause, stringify_list
 
 
 class Reset:
@@ -131,10 +131,11 @@ class Reset:
     def _delete_new_corps(cls, cursor, corp_nums: list):
         if corp_nums:
             try:
+                clause, binds = build_in_clause(corp_nums, 'corp')
                 cursor.execute(f"""
                         DELETE FROM corporation
-                        WHERE corp_num in ({stringify_list(corp_nums)})
-                    """)
+                        WHERE corp_num in ({clause})
+                    """, binds)
             except Exception as err:
                 current_app.logger.error('Error in Reset: failed to delete from corp_name table.')
                 raise err
@@ -143,10 +144,11 @@ class Reset:
     def _delete_corp_state(cls, cursor, corp_nums: list):
         if corp_nums:
             try:
+                clause, binds = build_in_clause(corp_nums, 'corp')
                 cursor.execute(f"""
                         DELETE FROM corp_state
-                        WHERE corp_num in ({stringify_list(corp_nums)})
-                    """)
+                        WHERE corp_num in ({clause})
+                    """, binds)
             except Exception as err:
                 current_app.logger.error('Error in Reset: failed to delete from corp_name table.')
                 raise err

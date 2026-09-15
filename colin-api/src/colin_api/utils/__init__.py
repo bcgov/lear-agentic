@@ -71,7 +71,7 @@ def convert_to_pacific_time(thedate: str) -> str:
 def build_in_clause(values: list, prefix: str):
     """Build a parameterized SQL IN-list fragment and bind map for cx_Oracle.
 
-    Use this for untrusted / request-sourced values. Do not interpolate those
+    Use this for untrusted / string-typed values. Do not interpolate those
     values into SQL with stringify_list.
 
     Returns:
@@ -95,7 +95,7 @@ def build_in_clause(values: list, prefix: str):
 def build_cooper_reset_filings_query(start_date: str, end_date: str,
                                      identifiers: list = None,
                                      filing_types: list = None):
-    """Build the cooper reset lookup SQL and bind map (VULN-002).
+    """Build the cooper reset lookup SQL and bind map (VULN-002 / VULN-003).
 
     Request-sourced identifiers / filing_types are bound, never stringified.
     """
@@ -128,10 +128,11 @@ def build_cooper_reset_filings_query(start_date: str, end_date: str,
 
 
 def stringify_list(list_orig: list) -> str:
-    """Stringify a trusted list for SQL IN clauses (legacy helper).
+    """Stringify a trusted numeric ID list for SQL IN clauses (legacy helper).
 
-    Not safe for request-sourced strings — use build_in_clause / bind variables
-    instead (see VULN-002). Strip spaces/')' is not a substitute for binding.
+    Not safe for request-sourced or string-typed values — use build_in_clause /
+    bind variables instead (VULN-002 / VULN-003). Residual: internal integer
+    event_id / addr_id lists may still call this helper.
     """
     list_str = ''
     for item in list_orig:
@@ -143,7 +144,11 @@ def stringify_list(list_orig: list) -> str:
 
 
 def delete_from_table_by_event_ids(cursor, event_ids: list, table: str, column: str = 'start_event_id'):
-    """Delete rows with given event ids from given table."""
+    """Delete rows with given event ids from given table.
+
+    Residual (VULN-003): event_ids are treated as trusted integer IDs from
+    prior COLIN queries; still uses stringify_list rather than binds.
+    """
     try:
         # table is a value set by the code: not possible to be sql injected from a request
         cursor.execute(f"""
