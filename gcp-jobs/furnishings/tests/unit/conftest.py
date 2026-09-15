@@ -59,7 +59,9 @@ def sftpconnection(sftpserver):
         username="user",
         password="pwd",
         host=sftpserver.host,
-        port=sftpserver.port
+        port=sftpserver.port,
+        # Ephemeral pytest-sftpserver keys — explicit opt-out only for harnesses.
+        verify_host=False,
     )
 
 def create_test_db(

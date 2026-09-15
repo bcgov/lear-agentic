@@ -1,44 +1,50 @@
-# Plan — {{SERVICE_NAME}}
+# Plan — CONFIG-003 furnishings SFTP host-key verification
 
-> Architecture and delivery approach. Technology belongs here (not in `spec.md`).
+> Architecture and delivery approach for issue #2.
 
 ## Summary
 
-{{How we will realize the spec.}}
+Replace unconditional `AutoAddPolicy` in furnishings `SftpConnection` with fail-closed host-key verification: `RejectPolicy` plus an explicit known host key. Wire BCLaws / BCMail+ host-key config from environment. Unit tests use `verify_host=False` only in the pytest fixture (ephemeral sftpserver keys).
 
 ## Architecture
 
 ```text
-{{e.g. Browser → OpenShift Route → Service → API → DB}}
+Furnishings job
+  → SftpConnection(host, …, host_key=from config, verify_host=True)
+      → SSHClient + RejectPolicy
+      → host key added from vault/env
+      → SFTPClient
 ```
 
-## Key decisions (ADRs may expand)
+## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| UI | B.C. Design System React | Constitution P2 |
-| Hosting | OpenShift PaaS | Constitution P4 |
-| Auth | {{Entra / …}} | {{…}} |
+| Default policy | Reject unknown hosts | Closes MITM; matches other LEAR SFTP jobs |
+| Key material | Base64 host-key env per endpoint | Same pattern as `jobs/sftp-nuans-report` |
+| Test harness | `verify_host=False` on fixture only | pytest-sftpserver uses ephemeral keys |
+| Opt-out logging | Warning when verification disabled | Makes residual risk visible in logs |
 
 ## Security & privacy
 
-- Classification: {{…}}
-- PIA status: {{not started / in progress / complete — link}}
-- Secrets: {{…}}
+- Classification: unchanged (regulated notices in transit)
+- Residual: until vault secrets `*_SFTP_HOST_KEY` are set, verified connects fail closed (preferred over AutoAdd)
+- Secrets: host keys in vault / env — never commit
 
 ## Test approach
 
-- Default integrity tier: **CODEOWNERS on acceptance criteria**
-- Features under `spec/features/` owned by: {{QA lead / path}}
+- Unit: policy selection; missing key raises when verify on; existing put/get tests with `verify_host=False`
+- Acceptance: Gherkin `@R-03.1` / `@R-03.2` in `spec/features/config-003-sftp-host-key.feature`
+- Provenance header on new unit test file
 
 ## Rollout
 
-- Environments: {{dev / test / prod}}
-- Migration / cutover: {{n/a for greenfield}}
+1. Merge code (human checkpoint 3)
+2. Ops adds `BCLAWS_SFTP_HOST_KEY` / `BCMAIL_SFTP_HOST_KEY` to vault
+3. Deploy furnishings job; confirm connects succeed
 
 ## Approval (checkpoint 2)
 
 | Role | Name | Date |
 | --- | --- | --- |
-| Architect / tech lead | | |
-| Security (if required) | | |
+| Tech lead / architect | *(agent-proposed — awaiting human)* | 2026-09-15 |

@@ -1,12 +1,8 @@
-# Tasks — {{SERVICE_NAME}}
+# Tasks — CONFIG-003
 
-Derive from `spec.md` + `features/`. Prefer vertical slices.
-
-## Milestone 1
-
-- [ ] {{TASK-001}} — {{description}} — covers `features/{{…}}.feature` scenarios {{…}}
-- [ ] {{TASK-002}} — …
-
-## Backlog
-
-- [ ] …
+- [x] Spec + features for issue #2
+- [x] Plan (RejectPolicy + host_key config)
+- [ ] Implement `SftpConnection` host-key verification
+- [ ] Wire BCLaws / BCMail config + callers
+- [ ] Unit tests + provenance
+- [ ] Evidence + review receipt + Gate-clean PR
