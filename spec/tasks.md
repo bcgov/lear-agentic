@@ -1,12 +1,3 @@
-# Tasks — {{SERVICE_NAME}}
+# Tasks (merge-train stub)
 
-Derive from `spec.md` + `features/`. Prefer vertical slices.
-
-## Milestone 1
-
-- [ ] {{TASK-001}} — {{description}} — covers `features/{{…}}.feature` scenarios {{…}}
-- [ ] {{TASK-002}} — …
-
-## Backlog
-
-- [ ] …
+See `docs/sdlc/PR-<n>/tasks.md` for the signed tasks for this slice.
