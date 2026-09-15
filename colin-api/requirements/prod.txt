@@ -1,4 +1,4 @@
-cx_Oracle
+oracledb
 datedelta
 ecdsa>=0.19.0
 gunicorn>=23.0.0
