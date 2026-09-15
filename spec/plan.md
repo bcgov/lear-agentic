@@ -1,44 +1,29 @@
-# Plan — {{SERVICE_NAME}}
-
-> Architecture and delivery approach. Technology belongs here (not in `spec.md`).
+# Plan — VULN-005 Furnishings safe MRAS XMLParser
 
 ## Summary
 
-{{How we will realize the spec.}}
+Apply the same `XMLParser(resolve_entities=False, no_network=True)` hardening used for VULN-004 to `gcp-jobs/furnishings` `MrasService`, with unit tests tagged `@R-63.*`.
 
 ## Architecture
 
 ```text
-{{e.g. Browser → OpenShift Route → Service → API → DB}}
+furnishings/services/mras_service.py
+  etree.fromstring(content, parser=safe_parser)
+tests/unit/test_mras_service.py
+  happy path + source inspection + XXE canary
 ```
 
-## Key decisions (ADRs may expand)
+Use a top-level `tests/test_mras_service.py` smoke file to avoid the heavy `tests/unit/__init__.py` business-model imports when exercising parser-only behaviour.
+
+## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| UI | B.C. Design System React | Constitution P2 |
-| Hosting | OpenShift PaaS | Constitution P4 |
-| Auth | {{Entra / …}} | {{…}} |
-
-## Security & privacy
-
-- Classification: {{…}}
-- PIA status: {{not started / in progress / complete — link}}
-- Secrets: {{…}}
-
-## Test approach
-
-- Default integrity tier: **CODEOWNERS on acceptance criteria**
-- Features under `spec/features/` owned by: {{QA lead / path}}
-
-## Rollout
-
-- Environments: {{dev / test / prod}}
-- Migration / cutover: {{n/a for greenfield}}
+| Parser flags | Same as VULN-004 | Issue asks for parity with legal-api fix |
+| Test harness | Minimal Flask app fixture | Avoid heavy create_app/DB for service-only tests |
 
 ## Approval (checkpoint 2)
 
 | Role | Name | Date |
 | --- | --- | --- |
-| Architect / tech lead | | |
-| Security (if required) | | |
+| Architect / tech lead | local-agent | 2026-09-15 |
