@@ -1,12 +1,8 @@
-# Tasks — {{SERVICE_NAME}}
+# Tasks — CONFIG-005
 
-Derive from `spec.md` + `features/`. Prefer vertical slices.
-
-## Milestone 1
-
-- [ ] {{TASK-001}} — {{description}} — covers `features/{{…}}.feature` scenarios {{…}}
-- [ ] {{TASK-002}} — …
-
-## Backlog
-
-- [ ] …
+- [x] Spec + features for issue #24 (`@R-24.1`–`@R-24.3`)
+- [x] Plan (sslmode helper + local vs non-local defaults)
+- [x] Update `data-tool/flows/config.py` URI construction
+- [x] `.corps.env.sample` documentation
+- [x] Unit tests + provenance headers
+- [ ] Evidence + review receipt + Gate-clean PR (human checkpoint 3)

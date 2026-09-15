@@ -86,6 +86,46 @@ def _normalized_csv(values: list[int]):
     return ','.join(str(x) for x in values) if values else None
 
 
+def _is_local_data_tool_env() -> bool:
+    """True when env signals local/dev data-tool usage (CONFIG-005)."""
+    flask_env = (os.getenv('FLASK_ENV') or '').strip().lower()
+    app_settings = (os.getenv('APP_SETTINGS') or '').strip().lower()
+    data_load = (os.getenv('DATA_LOAD_ENV') or '').strip().lower()
+    if flask_env in ('development', 'testing', 'dev'):
+        return True
+    if app_settings in ('dev', 'development', 'testing'):
+        return True
+    if data_load.startswith('local') or 'local' in data_load:
+        return True
+    return False
+
+
+def _postgres_sslmode() -> str:
+    """Return sslmode for Postgres URIs (CONFIG-005).
+
+    ``DATABASE_SSLMODE`` overrides. Secure default for non-local is ``require``;
+    local/dev defaults to ``prefer`` so laptop Postgres without TLS still works.
+    """
+    explicit = os.getenv('DATABASE_SSLMODE')
+    if explicit is not None and explicit.strip() != '':
+        return explicit.strip()
+    return 'prefer' if _is_local_data_tool_env() else 'require'
+
+
+def _postgres_uri(user: str, password: str, host: str, port, name: str) -> str:
+    """Build a postgresql:// URI with sslmode query param."""
+    return (
+        'postgresql://{user}:{password}@{host}:{port}/{name}?sslmode={sslmode}'.format(
+            user=user,
+            password=password,
+            host=host,
+            port=int(port),
+            name=name,
+            sslmode=_postgres_sslmode(),
+        )
+    )
+
+
 def get_named_config(config_name: str = 'production'):
     """Return the configuration object based on the name.
 
@@ -126,18 +166,21 @@ class _Config():  # pylint: disable=too-few-public-methods
     USE_CUSTOM_PASSCODE = os.getenv('USE_CUSTOM_PASSCODE', 'False') == 'True'
     CUSTOM_PASSCODE = os.getenv('CUSTOM_PASSCODE', '')
 
+    # Postgres TLS (CONFIG-005). Override with DATABASE_SSLMODE=disable|allow|prefer|require|verify-ca|verify-full.
+    DATABASE_SSLMODE = _postgres_sslmode()
+
     # POSTGRESQL COLIN MIGRATION DB
     DB_USER_COLIN_MIGR = os.getenv('DATABASE_USERNAME_COLIN_MIGR', '')
     DB_PASSWORD_COLIN_MIGR = os.getenv('DATABASE_PASSWORD_COLIN_MIGR', '')
     DB_NAME_COLIN_MIGR = os.getenv('DATABASE_NAME_COLIN_MIGR', '')
     DB_HOST_COLIN_MIGR = os.getenv('DATABASE_HOST_COLIN_MIGR', '')
     DB_PORT_COLIN_MIGR = os.getenv('DATABASE_PORT_COLIN_MIGR', '5432')
-    SQLALCHEMY_DATABASE_URI_COLIN_MIGR = 'postgresql://{user}:{password}@{host}:{port}/{name}'.format(
-        user=DB_USER_COLIN_MIGR,
-        password=DB_PASSWORD_COLIN_MIGR,
-        host=DB_HOST_COLIN_MIGR,
-        port=int(DB_PORT_COLIN_MIGR),
-        name=DB_NAME_COLIN_MIGR,
+    SQLALCHEMY_DATABASE_URI_COLIN_MIGR = _postgres_uri(
+        DB_USER_COLIN_MIGR,
+        DB_PASSWORD_COLIN_MIGR,
+        DB_HOST_COLIN_MIGR,
+        DB_PORT_COLIN_MIGR,
+        DB_NAME_COLIN_MIGR,
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS', False)
 
@@ -147,12 +190,12 @@ class _Config():  # pylint: disable=too-few-public-methods
     DB_NAME = os.getenv('DATABASE_NAME', '')
     DB_HOST = os.getenv('DATABASE_HOST', '')
     DB_PORT = os.getenv('DATABASE_PORT', '5432')
-    SQLALCHEMY_DATABASE_URI = 'postgresql://{user}:{password}@{host}:{port}/{name}'.format(
-        user=DB_USER,
-        password=DB_PASSWORD,
-        host=DB_HOST,
-        port=int(DB_PORT),
-        name=DB_NAME,
+    SQLALCHEMY_DATABASE_URI = _postgres_uri(
+        DB_USER,
+        DB_PASSWORD,
+        DB_HOST,
+        DB_PORT,
+        DB_NAME,
     )
 
     DATABASE_POOL_PRE_PING = os.getenv('DATABASE_POOL_PRE_PING', 'True') == 'True'
@@ -171,12 +214,12 @@ class _Config():  # pylint: disable=too-few-public-methods
     DB_NAME_AUTH = os.getenv('DATABASE_NAME_AUTH', '')
     DB_HOST_AUTH = os.getenv('DATABASE_HOST_AUTH', '')
     DB_PORT_AUTH = os.getenv('DATABASE_PORT_AUTH', '5432')
-    SQLALCHEMY_DATABASE_URI_AUTH = 'postgresql://{user}:{password}@{host}:{port}/{name}'.format(
-        user=DB_USER_AUTH,
-        password=DB_PASSWORD_AUTH,
-        host=DB_HOST_AUTH,
-        port=int(DB_PORT_AUTH),
-        name=DB_NAME_AUTH,
+    SQLALCHEMY_DATABASE_URI_AUTH = _postgres_uri(
+        DB_USER_AUTH,
+        DB_PASSWORD_AUTH,
+        DB_HOST_AUTH,
+        DB_PORT_AUTH,
+        DB_NAME_AUTH,
     )
 
     # service accounts

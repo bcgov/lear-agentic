@@ -1,44 +1,49 @@
-# Plan — {{SERVICE_NAME}}
+# Plan — CONFIG-005 data-tool Postgres sslmode
 
-> Architecture and delivery approach. Technology belongs here (not in `spec.md`).
+> Architecture and delivery approach for issue #24.
 
 ## Summary
 
-{{How we will realize the spec.}}
+Centralize Postgres URI construction in `data-tool/flows/config.py` so LEAR, COLIN migr, and AUTH URIs always include `?sslmode=…`. Default is `require` unless the environment looks local/dev (`prefer`) or `DATABASE_SSLMODE` is set.
 
 ## Architecture
 
 ```text
-{{e.g. Browser → OpenShift Route → Service → API → DB}}
+env (DATABASE_SSLMODE | FLASK_ENV / DATA_LOAD_ENV)
+  → _postgres_sslmode()
+  → _postgres_uri(...)
+  → SQLALCHEMY_DATABASE_URI*
+  → create_engine(...)
 ```
 
-## Key decisions (ADRs may expand)
+## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| UI | B.C. Design System React | Constitution P2 |
-| Hosting | OpenShift PaaS | Constitution P4 |
-| Auth | {{Entra / …}} | {{…}} |
+| Default non-local | `require` | Closes cleartext TCP finding |
+| Default local | `prefer` | Avoid breaking laptop Postgres without TLS |
+| Override | `DATABASE_SSLMODE` | Ops / local explicit control |
+| Scope | Three URIs only | Matches CONFIG-005 evidence |
 
 ## Security & privacy
 
-- Classification: {{…}}
-- PIA status: {{not started / in progress / complete — link}}
-- Secrets: {{…}}
+- Residual: `prefer`/`disable` still allow cleartext if operator chooses; non-local default is require
+- Cert validation (`verify-full`) remains an ops opt-in via env
 
 ## Test approach
 
-- Default integrity tier: **CODEOWNERS on acceptance criteria**
-- Features under `spec/features/` owned by: {{QA lead / path}}
+- Unit: reload config under controlled env; assert URI query params (`@R-24.1`–`@R-24.3`)
+- Acceptance: Gherkin in `spec/features/config-005-data-tool-pg-ssl.feature`
 
 ## Rollout
 
-- Environments: {{dev / test / prod}}
-- Migration / cutover: {{n/a for greenfield}}
+1. Merge code (human checkpoint 3)
+2. Ops confirms target Postgres accepts SSL
+3. Deploy data-tool workers; set `DATABASE_SSLMODE=require` explicitly in vault if desired
 
 ## Approval (checkpoint 2)
 
 | Role | Name | Date |
 | --- | --- | --- |
-| Architect / tech lead | | |
-| Security (if required) | | |
+| Tech lead | | |
+| Security | | |
