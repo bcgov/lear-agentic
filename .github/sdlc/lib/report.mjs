@@ -45,7 +45,10 @@ export class Results {
       "",
       "| Status | Check | Message |",
       "| --- | --- | --- |",
-      ...this._items.map((r) => `| ${r.status} | \`${r.id}\` | ${r.message.replace(/\|/g, "\\|")} |`),
+      ...this._items.map(
+        (r) =>
+          `| ${r.status} | \`${r.id}\` | ${String(r.message).replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} |`,
+      ),
       "",
     ].join("\n");
   }
