@@ -74,8 +74,13 @@ class _Config:  # pylint: disable=too-few-public-methods
 
     PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
-    SECRET_KEY = 'a secret'
+    SECRET_KEY = os.getenv('SECRET_KEY', None)
 
+    if not SECRET_KEY:
+
+        SECRET_KEY = os.urandom(24)
+
+        print('WARNING: SECRET_KEY being set as a one-shot', file=sys.stderr)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     LD_SDK_KEY = os.getenv('LD_SDK_KEY', None)
