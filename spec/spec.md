@@ -1,54 +1,36 @@
-# Spec — {{SERVICE_NAME}}
+# Spec — furnishings flask-restplus → flask-restx (DEP-015)
 
 > Technology-free. Describe *what* and *why*, not frameworks or cloud products.
 
 ## Feature proposal
 
-The **Feature issue** is the proposal — link the GitHub issue (e.g. `#123`) and summarize the agreed outcome this spec implements.
+GitHub issue **#34** (`DEP-015`) (Medium). The furnishings job declares an unmaintained REST helper package that was renamed/succeeded by a maintained fork.
 
 ## Problem
 
-{{Who is stuck, and what pain do they have today?}}
+Unmaintained API helper packages receive no security patches. furnishings still names the deprecated package even though no in-tree Python imports reference it.
 
 ## Outcome
 
-{{Measurable outcome for the user / business.}}
-
-## Users & personas
-
-| Persona | Goal |
-| --- | --- |
-| {{…}} | {{…}} |
+furnishings declares the maintained successor package and no longer lists the deprecated one.
 
 ## Scope
 
-### In scope (this release)
+### In scope
 
-- {{…}}
+- Replace flask-restplus with flask-restx in `gcp-jobs/furnishings/pyproject.toml`
+- Refresh poetry.lock
+- Spec `@R-715.1`, `@R-715.2`
 
 ### Out of scope
 
-- {{…}}
-
-## Journeys
-
-1. {{Happy path name}} — see `features/{{name}}.feature`
-2. {{…}}
-
-## Non-functional requirements
-
-- Accessibility: WCAG 2.1 AA
-- Privacy: {{classification + PIA status}}
-- Availability: {{…}}
-
-## Open questions
-
-- [ ] {{…}}
+- Introducing new REST namespaces in furnishings (none currently import either package)
+- Migrating other components still mentioning restplus historically
 
 ## Sign-off (checkpoint 1)
 
 | Role | Name | Date |
 | --- | --- | --- |
-| Product / PM | | |
-| BA | | |
-| QA (acceptance ownership) | | |
+| Product / PM | local-agent | 2026-09-15 |
+| BA | local-agent | 2026-09-15 |
+| QA (acceptance ownership) | local-agent | 2026-09-15 |

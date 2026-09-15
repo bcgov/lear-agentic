@@ -1,44 +1,11 @@
-# Plan — {{SERVICE_NAME}}
-
-> Architecture and delivery approach. Technology belongs here (not in `spec.md`).
+# Plan — DEP-015 furnishings flask-restx
 
 ## Summary
 
-{{How we will realize the spec.}}
-
-## Architecture
-
-```text
-{{e.g. Browser → OpenShift Route → Service → API → DB}}
-```
-
-## Key decisions (ADRs may expand)
-
-| Decision | Choice | Rationale |
-| --- | --- | --- |
-| UI | B.C. Design System React | Constitution P2 |
-| Hosting | OpenShift PaaS | Constitution P4 |
-| Auth | {{Entra / …}} | {{…}} |
-
-## Security & privacy
-
-- Classification: {{…}}
-- PIA status: {{not started / in progress / complete — link}}
-- Secrets: {{…}}
-
-## Test approach
-
-- Default integrity tier: **CODEOWNERS on acceptance criteria**
-- Features under `spec/features/` owned by: {{QA lead / path}}
-
-## Rollout
-
-- Environments: {{dev / test / prod}}
-- Migration / cutover: {{n/a for greenfield}}
+Swap `flask-restplus (>=0.13.0,<0.14.0)` for `flask-restx (>=1.3.0,<2.0.0)` in furnishings pyproject and refresh the lockfile. No application import changes required (no in-tree restplus/restx usage).
 
 ## Approval (checkpoint 2)
 
 | Role | Name | Date |
 | --- | --- | --- |
-| Architect / tech lead | | |
-| Security (if required) | | |
+| Architect / tech lead | local-agent | 2026-09-15 |

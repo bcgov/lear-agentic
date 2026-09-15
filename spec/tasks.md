@@ -1,12 +1,4 @@
-# Tasks — {{SERVICE_NAME}}
+# Tasks — DEP-015
 
-Derive from `spec.md` + `features/`. Prefer vertical slices.
-
-## Milestone 1
-
-- [ ] {{TASK-001}} — {{description}} — covers `features/{{…}}.feature` scenarios {{…}}
-- [ ] {{TASK-002}} — …
-
-## Backlog
-
-- [ ] …
+- [x] TASK-001 — Replace flask-restplus with flask-restx in pyproject — `@R-715.1` `@R-715.2`
+- [x] TASK-002 — Refresh poetry.lock; spec / evidence for issue #34
