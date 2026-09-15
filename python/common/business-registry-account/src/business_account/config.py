@@ -97,8 +97,8 @@ class TestConfig(_Config):
     JWT_OIDC_TEST_AUDIENCE = "example"
     JWT_OIDC_TEST_ISSUER = "https://example.localdomain/auth/realms/example"
     _JWT_OIDC_TEST_MATERIAL = ephemeral_jwt_oidc_test_material()
-    JWT_OIDC_TEST_KEYS = _JWT_OIDC_TEST_MATERIAL["keys"]  # noqa: RUF012
-    JWT_OIDC_TEST_PRIVATE_KEY_JWKS = _JWT_OIDC_TEST_MATERIAL["private_key_jwks"]  # noqa: RUF012
+    JWT_OIDC_TEST_KEYS = _JWT_OIDC_TEST_MATERIAL["keys"]
+    JWT_OIDC_TEST_PRIVATE_KEY_JWKS = _JWT_OIDC_TEST_MATERIAL["private_key_jwks"]
     JWT_OIDC_TEST_PRIVATE_KEY_PEM = _JWT_OIDC_TEST_MATERIAL["private_key_pem"]
 
 
