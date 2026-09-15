@@ -1,2 +1,3 @@
-# Tasks — DEP-003
-- [x] TASK-001 — Add requirements.lock — `@R-703.1`
+# Tasks (merge-train stub)
+
+See `docs/sdlc/PR-<n>/tasks.md` for the signed tasks for this slice.

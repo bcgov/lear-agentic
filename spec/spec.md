@@ -1,12 +1,5 @@
-# Spec — Colin API dependency lockfile (DEP-003)
+# Spec (merge-train stub)
 
-## Feature proposal
-Issue **#8** — DEP-003: colin-api has no lockfile for transitive dependencies.
+Signed slice artifacts for each remediation PR are archived under `docs/sdlc/PR-<n>/`.
 
-## Outcome
-A committed `requirements.lock` captures resolved transitive versions for PyPI pins so installs are reproducible (with documented exceptions for Oracle and git deps).
-
-## Sign-off
-| Role | Name | Date |
-| --- | --- | --- |
-| Product / PM | local-agent | 2026-09-15 |
+Canonical `spec/spec.md`, `spec/plan.md`, and `spec/tasks.md` are intentionally identical across open RA PRs so sequential merges onto `main` do not add/add-conflict.
