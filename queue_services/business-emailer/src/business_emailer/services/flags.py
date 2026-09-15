@@ -16,7 +16,8 @@ from flask import current_app
 from ldclient import get as ldclient_get
 from ldclient import set_config as ldclient_set_config
 from ldclient.config import Config
-from ldclient.impl.integrations.files.file_data_source import _FileDataSource
+from ldclient.context import Context
+from ldclient.integrations import Files
 from ldclient.interfaces import UpdateProcessor
 
 from business_model.models import User
@@ -27,19 +28,13 @@ class FileDataSource(UpdateProcessor):
 
     @classmethod
     def factory(cls, **kwargs):
-        """Provide a way to use local files as a source of feature flag state.
-
-        .. deprecated:: 6.8.0
-          This module and this implementation class are deprecated and may be changed or removed in the future.
-          Please use :func:`ldclient.integrations.Files.new_data_source()`.
-
-        The keyword arguments are the same as the arguments to :func:`ldclient.integrations.Files.new_data_source()`.
-        """
-        return lambda config, store, ready: _FileDataSource(store, ready,
-                                                            paths=kwargs.get("paths"),
-                                                            auto_update=kwargs.get("auto_update", False),
-                                                            poll_interval=kwargs.get("poll_interval", 1),
-                                                            force_polling=kwargs.get("force_polling", False))
+        """Provide a way to use local files as a source of feature flag state."""
+        return lambda config, store, ready: Files.new_data_source(
+            paths=kwargs.get("paths"),
+            auto_update=kwargs.get("auto_update", False),
+            poll_interval=kwargs.get("poll_interval", 1),
+            force_polling=kwargs.get("force_polling", False),
+        )(config, store, ready)
 
 
 class Flags:
@@ -104,18 +99,16 @@ class Flags:
 
     @staticmethod
     def _get_anonymous_user():
-        return {
-            "key": "anonymous"
-        }
+        return Context.create("anonymous")
 
     @staticmethod
     def _user_as_key(user: User):
-        user_json = {
-            "key": user.sub,
-            "firstName": user.firstname,
-            "lastName": user.lastname
-        }
-        return user_json
+        return (
+            Context.builder(user.sub)
+            .set("firstName", user.firstname)
+            .set("lastName", user.lastname)
+            .build()
+        )
 
     def is_on(self, flag: str, user: User = None) -> bool:
         """Assert that the flag is set for this user."""
