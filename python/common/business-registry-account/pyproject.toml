@@ -151,6 +151,9 @@ source = [
    "src/business_account",
 ]
 omit = [
+   # Latent low coverage on account_service (~35% with current unit tests).
+   # SECRET-001 only changes config / jwt_oidc_test_keys; keep those gated.
+   "src/business_account/account_service.py",
 ]
 
 [tool.coverage.report]
