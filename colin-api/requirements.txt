@@ -1,4 +1,3 @@
-
 Flask-Moment==0.11.0
 Flask-Script==2.0.6
 Flask==1.1.2
@@ -26,11 +25,11 @@ pyrsistent==0.17.3
 python-dotenv==0.17.1
 python-jose==3.2.0
 pytz==2021.1
-requests==2.25.1
+requests==2.32.5
 rsa==4.7.2
 SQLAlchemy==1.4.44
 six==1.15.0
-urllib3==1.26.11
+urllib3==2.8.0
 git+https://github.com/bcgov/business-schemas.git@cf41a551b08cb51afd3e88bec0eab155dc856b24#egg=registry_schemas
 
 # Transitive lock: see requirements.lock (DEP-003). Prefer: pip install -r requirements.lock
