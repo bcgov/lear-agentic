@@ -15,6 +15,9 @@ downloads/
 eggs/
 .eggs/
 lib/
+# Pack runtime (must be tracked; root lib/ ignore is for Python packaging)
+!.github/sdlc/lib/
+!.github/sdlc/lib/**
 lib64/
 parts/
 sdist/
