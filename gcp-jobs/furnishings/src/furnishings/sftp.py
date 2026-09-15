@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import io
+from base64 import decodebytes
 from enum import auto
 from typing import TYPE_CHECKING
 
@@ -45,7 +46,10 @@ class SftpConnection:
             password: str | None = None,
             private_key: str | None = None,
             private_key_passphrase: str | None = None,
-            private_key_algorithm: str = PublicKeyAlgorithms.ED25519.value
+            private_key_algorithm: str = PublicKeyAlgorithms.ED25519.value,
+            host_key: str | None = None,
+            host_key_algorithm: str = "ssh-ed25519",
+            verify_host: bool = True,
     ):
         """Initialize the SFTP Connection object.
 
@@ -57,6 +61,10 @@ class SftpConnection:
             private_key (str): The private key to use for the SFTP connection.
             private_key_passphrase (str): The password for the private key.
             private_key_algorithm (str): The format of the private key.
+            host_key (str): Base64-encoded remote host key (required when verify_host is True).
+            host_key_algorithm (str): Host key type name for paramiko (e.g. ssh-rsa, ssh-ed25519).
+            verify_host (bool): When True (default), reject unknown hosts. Set False only for
+                ephemeral local/test servers — never the production default.
         """
         self.host = host
         self.port = port
@@ -65,8 +73,40 @@ class SftpConnection:
         self.private_key = private_key
         self.private_key_passphrase = private_key_passphrase
         self.private_key_algorithm = private_key_algorithm
+        self.host_key = host_key
+        self.host_key_algorithm = host_key_algorithm
+        self.verify_host = verify_host
         self.sftp_handler = None
         self.ssh_connection = None
+
+    def _apply_host_key_policy(self) -> None:
+        """Require known host keys by default; AutoAdd only when explicitly opted out."""
+        if not self.verify_host:
+            current_app.logger.warning(
+                "SFTP host key verification disabled (verify_host=False) — test/local only"
+            )
+            self.ssh_connection.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            return
+
+        self.ssh_connection.set_missing_host_key_policy(paramiko.RejectPolicy())
+        if not self.host_key:
+            raise ValueError(
+                "SFTP host_key is required when verify_host is True "
+                "(set BCLAWS_SFTP_HOST_KEY / BCMAIL_SFTP_HOST_KEY)"
+            )
+
+        key_bytes = decodebytes(self.host_key.strip().encode())
+        algo = (self.host_key_algorithm or "ssh-ed25519").lower()
+        if algo in {"ssh-rsa", "rsa"}:
+            key = paramiko.RSAKey(data=key_bytes)
+            key_name = "ssh-rsa"
+        elif algo in {"ssh-ed25519", "ed25519"}:
+            key = paramiko.Ed25519Key(data=key_bytes)
+            key_name = "ssh-ed25519"
+        else:
+            raise ValueError(f"Unsupported SFTP host_key_algorithm: {self.host_key_algorithm}")
+
+        self.ssh_connection.get_host_keys().add(self.host, key_name, key)
 
     def __enter__(self) -> Callable:
         """Connect to the SFTP server.
@@ -76,7 +116,7 @@ class SftpConnection:
         """
         try:
             self.ssh_connection = paramiko.SSHClient()
-            self.ssh_connection.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            self._apply_host_key_policy()
             if self.private_key:
                 if self.private_key_algorithm == PublicKeyAlgorithms.RSA.name:
                     f__from_private_key = paramiko.RSAKey.from_private_key
