@@ -1,44 +1,18 @@
-# Plan — {{SERVICE_NAME}}
-
-> Architecture and delivery approach. Technology belongs here (not in `spec.md`).
+# Plan — SECRET-001 ephemeral JWT test keys
 
 ## Summary
+Add a small helper that generates an RSA keypair once per process and wire TestConfig JWT_OIDC_TEST_* fields from it in legal-api and business-registry-account.
 
-{{How we will realize the spec.}}
-
-## Architecture
-
-```text
-{{e.g. Browser → OpenShift Route → Service → API → DB}}
-```
-
-## Key decisions (ADRs may expand)
-
+## Key decisions
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| UI | B.C. Design System React | Constitution P2 |
-| Hosting | OpenShift PaaS | Constitution P4 |
-| Auth | {{Entra / …}} | {{…}} |
+| Generation | cryptography RSA 2048 | Already common transitive dep for JWT stacks |
+| Scope | Both cited TestConfig sites | Matches RA finding |
 
-## Security & privacy
+## Residual risk
+Prior private key remains in git history — treat as compromised for any env that ever used JWT_OIDC_TEST_MODE with that key.
 
-- Classification: {{…}}
-- PIA status: {{not started / in progress / complete — link}}
-- Secrets: {{…}}
-
-## Test approach
-
-- Default integrity tier: **CODEOWNERS on acceptance criteria**
-- Features under `spec/features/` owned by: {{QA lead / path}}
-
-## Rollout
-
-- Environments: {{dev / test / prod}}
-- Migration / cutover: {{n/a for greenfield}}
-
-## Approval (checkpoint 2)
-
+## Approval
 | Role | Name | Date |
 | --- | --- | --- |
-| Architect / tech lead | | |
-| Security (if required) | | |
+| Architect / tech lead | local-agent | 2026-09-15 |

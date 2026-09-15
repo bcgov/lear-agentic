@@ -1,12 +1,3 @@
-# Tasks — {{SERVICE_NAME}}
-
-Derive from `spec.md` + `features/`. Prefer vertical slices.
-
-## Milestone 1
-
-- [ ] {{TASK-001}} — {{description}} — covers `features/{{…}}.feature` scenarios {{…}}
-- [ ] {{TASK-002}} — …
-
-## Backlog
-
-- [ ] …
+# Tasks — SECRET-001
+- [x] TASK-001 — Ephemeral keys in legal-api TestConfig — `@R-18.1`
+- [x] TASK-002 — Ephemeral keys in business-registry-account TestConfig — `@R-18.2`
