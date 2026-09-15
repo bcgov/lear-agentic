@@ -26,6 +26,7 @@ from colin_api.services import flags
 from colin_api.utils.auth import jwt
 from colin_api.utils.logging import setup_logging
 from colin_api.utils.run_version import get_run_version
+from colin_api.utils.security_headers import apply_security_headers
 
 
 setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.conf'))  # important to do this first
@@ -44,9 +45,10 @@ def create_app(run_mode=os.getenv('FLASK_ENV', 'production')):
 
     @app.after_request
     def add_version(response):  # pylint: disable=unused-variable
+        """Add API version and HTTP security headers to every response."""
         version = get_run_version()
         response.headers['API'] = f'colin_api/{version}'
-        return response
+        return apply_security_headers(response)
 
     register_shellcontext(app)
 
