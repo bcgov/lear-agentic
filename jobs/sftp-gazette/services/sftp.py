@@ -60,9 +60,7 @@ class SFTPService:  # pylint: disable=too-few-public-methods
             'private_key_pass': os.getenv('BCREG_FTP_PRIVATE_KEY_PASSPHRASE', '')
         }
 
-        # cnopts.hostkeys = None
-        # Connection(host=sftp_host, username='TESTPUB',  password='742mH273', cnopts=cnopts, port=int(sftp_port))
-        sftp_connection = Connection(host=sftp_host, **sft_credentials, cnopts=cnopts, port=int(sftp_port))        
+        sftp_connection = Connection(host=sftp_host, **sft_credentials, cnopts=cnopts, port=int(sftp_port))
         logging.info('sftp_connection successful')
         
         return sftp_connection

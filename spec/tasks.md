@@ -1,12 +1,2 @@
-# Tasks — {{SERVICE_NAME}}
-
-Derive from `spec.md` + `features/`. Prefer vertical slices.
-
-## Milestone 1
-
-- [ ] {{TASK-001}} — {{description}} — covers `features/{{…}}.feature` scenarios {{…}}
-- [ ] {{TASK-002}} — …
-
-## Backlog
-
-- [ ] …
+# Tasks — SECRET-009
+- [x] TASK-001 — Remove commented credential line — `@R-65.1`

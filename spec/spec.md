@@ -1,54 +1,12 @@
-# Spec — {{SERVICE_NAME}}
-
-> Technology-free. Describe *what* and *why*, not frameworks or cloud products.
+# Spec — Remove commented SFTP credentials (SECRET-009)
 
 ## Feature proposal
-
-The **Feature issue** is the proposal — link the GitHub issue (e.g. `#123`) and summarize the agreed outcome this spec implements.
-
-## Problem
-
-{{Who is stuck, and what pain do they have today?}}
+Issue **#65** — commented-out SFTP username/password must not remain in source.
 
 ## Outcome
+No hardcoded SFTP credentials (even in comments) in sftp-gazette connection code.
 
-{{Measurable outcome for the user / business.}}
-
-## Users & personas
-
-| Persona | Goal |
-| --- | --- |
-| {{…}} | {{…}} |
-
-## Scope
-
-### In scope (this release)
-
-- {{…}}
-
-### Out of scope
-
-- {{…}}
-
-## Journeys
-
-1. {{Happy path name}} — see `features/{{name}}.feature`
-2. {{…}}
-
-## Non-functional requirements
-
-- Accessibility: WCAG 2.1 AA
-- Privacy: {{classification + PIA status}}
-- Availability: {{…}}
-
-## Open questions
-
-- [ ] {{…}}
-
-## Sign-off (checkpoint 1)
-
+## Sign-off
 | Role | Name | Date |
 | --- | --- | --- |
-| Product / PM | | |
-| BA | | |
-| QA (acceptance ownership) | | |
+| Product / PM | local-agent | 2026-09-15 |
