@@ -31,3 +31,5 @@ SQLAlchemy==1.4.44
 six==1.15.0
 urllib3==2.8.0
 git+https://github.com/bcgov/business-schemas.git@cf41a551b08cb51afd3e88bec0eab155dc856b24#egg=registry_schemas
+
+# Transitive lock: see requirements.lock (DEP-003). Prefer: pip install -r requirements.lock
