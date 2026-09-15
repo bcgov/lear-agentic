@@ -17,15 +17,20 @@
 A simple decorator to add the options method to a Request Class.
 """
 
+from colin_api.utils.cors import apply_cors_allow_origin
+
 
 def cors_preflight(methods: str = 'GET'):
     """Render an option method on the class."""
     def wrapper(f):
         def options(self, *args, **kwargs):  # pylint: disable=unused-argument
-            return {'Allow': 'GET'}, 200, \
-                   {'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': methods,
-                    'Access-Control-Allow-Headers': 'Authorization, Content-Type, App-Name, Account-Id, X-Apikey'}
+            headers = {
+                'Access-Control-Allow-Methods': methods,
+                'Access-Control-Allow-Headers':
+                    'Authorization, Content-Type, App-Name, Account-Id, X-Apikey',
+            }
+            apply_cors_allow_origin(headers)
+            return {'Allow': 'GET'}, 200, headers
 
         setattr(f, 'options', options)
         return f

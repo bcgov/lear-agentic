@@ -17,6 +17,7 @@ from http import HTTPStatus
 from flask import Flask, current_app, redirect, request, url_for
 
 from legal_api import errorhandlers
+from legal_api.utils.cors import resolve_cors_allow_origin
 from legal_api.utils.run_version import get_run_version
 from registry_schemas import __version__ as registry_schemas_version
 
@@ -136,7 +137,11 @@ class Endpoints:
         return resp
 
     def _set_access_control_header(self, response):  # pylint: disable=unused-variable
-        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers.pop("Access-Control-Allow-Origin", None)
+        allowed_origin = resolve_cors_allow_origin()
+        if allowed_origin:
+            response.headers["Access-Control-Allow-Origin"] = allowed_origin
+            response.headers["Vary"] = "Origin"
         response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, App-Name"
 
     def _mount_endpoints(self):
