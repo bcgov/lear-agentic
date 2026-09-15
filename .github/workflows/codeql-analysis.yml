@@ -1,0 +1,51 @@
+# Explicit CodeQL advanced-setup workflow (TEST-001).
+# Evidence: GitHub default CodeQL setup is also configured on this repo
+# (dynamic/github-code-scanning/codeql) and already analyzes PRs for
+# python / javascript-typescript / actions. This committed workflow makes
+# SAST portable and reviewable in-repo. Residual: may duplicate default-setup
+# analyses until an admin consolidates to one mechanism.
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: python
+            build-mode: none
+          - language: javascript-typescript
+            build-mode: none
+          - language: actions
+            build-mode: none
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
