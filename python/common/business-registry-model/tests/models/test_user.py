@@ -17,12 +17,55 @@
 Test-Suite to ensure that the User Class is working as expected.
 """
 import base64
+import logging
 import uuid
 
 import pytest
 
 from business_model.exceptions import BusinessException
 from business_model.models import User
+
+# Identity-pii claim keys / values that must never appear in DEBUG logs (LOG-002 / @R-09.1+).
+_LOG002_FORBIDDEN_CLAIM_KEYS = (
+    'firstname',
+    'lastname',
+    'idp_userid',
+    'loginSource',
+    'sub',
+    'iss',
+)
+
+
+def _jwt_token_with_pii(**overrides):
+    """Build a JWT-shaped dict with distinctive PII values for log assertions."""
+    token = {
+        'username': 'username',
+        'given_name': 'Log002Given',
+        'family_name': 'Log002Family',
+        'firstname': 'Log002First',
+        'lastname': 'Log002Last',
+        'iss': 'https://issuer.example/log002-sensitive',
+        'sub': create_sub(),
+        'idp_userid': 'log002-idp-userid-sensitive',
+        'loginSource': 'IDIR',
+    }
+    token.update(overrides)
+    return token
+
+
+def _assert_debug_logs_omit_token_pii(caplog, token):
+    """Assert DEBUG records omit full token dump and listed identity-pii values."""
+    messages = [record.getMessage() for record in caplog.records if record.levelno == logging.DEBUG]
+    joined = '\n'.join(messages)
+    assert str(token) not in joined
+    for key in _LOG002_FORBIDDEN_CLAIM_KEYS:
+        value = token.get(key)
+        if value is not None:
+            assert str(value) not in joined, f'DEBUG log leaked {key}={value!r}: {joined!r}'
+    # given_name / family_name map into firstname/lastname columns — also must not dump via User repr
+    for value in (token.get('given_name'), token.get('family_name'), token.get('firstname'), token.get('lastname')):
+        if value:
+            assert value not in joined, f'DEBUG log leaked name value {value!r}: {joined!r}'
 
 
 def create_sub():
@@ -79,6 +122,16 @@ def test_create_from_jwt_token(session):
     assert u.id is not None
 
 
+def test_create_from_jwt_token_debug_logs_omit_pii(session, caplog):
+    """LOG-002 / @R-09.1 — DEBUG must not emit token dict or identity-pii claims."""
+    token = _jwt_token_with_pii()
+    with caplog.at_level(logging.DEBUG):
+        u = User.create_from_jwt_token(token)
+    assert u.id is not None
+    _assert_debug_logs_omit_token_pii(caplog, token)
+    assert any(f'user id={u.id}' in r.getMessage() for r in caplog.records if r.levelno == logging.DEBUG)
+
+
 def test_get_or_create_user_by_jwt(session):
     """Assert User is created from the JWT fields."""
     token = {'username': 'username',
@@ -91,6 +144,21 @@ def test_get_or_create_user_by_jwt(session):
              }
     u = User.get_or_create_user_by_jwt(token)
     assert u.id is not None
+
+
+def test_get_or_create_user_by_jwt_debug_logs_omit_pii(session, caplog):
+    """LOG-002 / @R-09.2 @R-09.3 — lookup and create paths omit token PII from DEBUG."""
+    token = _jwt_token_with_pii(idp_userid=create_sub(), sub=create_sub())
+    with caplog.at_level(logging.DEBUG):
+        u = User.get_or_create_user_by_jwt(token)
+    assert u.id is not None
+    _assert_debug_logs_omit_token_pii(caplog, token)
+
+    caplog.clear()
+    with caplog.at_level(logging.DEBUG):
+        again = User.get_or_create_user_by_jwt(token)
+    assert again.id == u.id
+    _assert_debug_logs_omit_token_pii(caplog, token)
 
 
 def test_get_or_create_user_by_jwt_invlaid_jwt(session):
