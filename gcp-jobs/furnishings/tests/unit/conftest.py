@@ -16,6 +16,7 @@ import contextlib
 import json
 
 import business_model_migrations
+import paramiko
 import pytest
 import sqlalchemy
 from flask import Flask
@@ -50,16 +51,25 @@ def app(ld):
         yield _app
 
 
-@pytest.fixture(scope="session")
+def _pytest_sftp_host_key() -> tuple[str, str]:
+    """Known host key shipped with pytest-sftpserver (no live probe / AutoAdd)."""
+    from pytest_sftpserver.consts import SERVER_KEY_PRIVATE
+
+    key = paramiko.RSAKey.from_private_key_file(SERVER_KEY_PRIVATE)
+    return key.get_base64(), key.get_name()
+
+
+@pytest.fixture
 def sftpconnection(sftpserver):
-    """
-    Returns a session-wide SFTP connection.
-    """
+    """Return a session-wide SFTP connection with verified pytest-sftpserver host key."""
+    host_key, host_key_algorithm = _pytest_sftp_host_key()
     return SftpConnection(
         username="user",
         password="pwd",
         host=sftpserver.host,
-        port=sftpserver.port
+        port=sftpserver.port,
+        host_key=host_key,
+        host_key_algorithm=host_key_algorithm,
     )
 
 def create_test_db(

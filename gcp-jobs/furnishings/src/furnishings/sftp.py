@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import io
+from base64 import decodebytes
 from enum import auto
 from typing import TYPE_CHECKING
 
@@ -45,7 +46,9 @@ class SftpConnection:
             password: str | None = None,
             private_key: str | None = None,
             private_key_passphrase: str | None = None,
-            private_key_algorithm: str = PublicKeyAlgorithms.ED25519.value
+            private_key_algorithm: str = PublicKeyAlgorithms.ED25519.value,
+            host_key: str | None = None,
+            host_key_algorithm: str = "ssh-ed25519",
     ):
         """Initialize the SFTP Connection object.
 
@@ -57,6 +60,8 @@ class SftpConnection:
             private_key (str): The private key to use for the SFTP connection.
             private_key_passphrase (str): The password for the private key.
             private_key_algorithm (str): The format of the private key.
+            host_key (str): Base64-encoded remote host key (required).
+            host_key_algorithm (str): Host key type name for paramiko (e.g. ssh-rsa, ssh-ed25519).
         """
         self.host = host
         self.port = port
@@ -65,8 +70,35 @@ class SftpConnection:
         self.private_key = private_key
         self.private_key_passphrase = private_key_passphrase
         self.private_key_algorithm = private_key_algorithm
+        self.host_key = host_key
+        self.host_key_algorithm = host_key_algorithm
         self.sftp_handler = None
         self.ssh_connection = None
+
+    def _apply_host_key_policy(self) -> None:
+        """Always reject unknown hosts; require an explicit known host key."""
+        self.ssh_connection.set_missing_host_key_policy(paramiko.RejectPolicy())
+        if not self.host_key:
+            raise ValueError(
+                "SFTP host_key is required "
+                "(set BCLAWS_SFTP_HOST_KEY / BCMAIL_SFTP_HOST_KEY)"
+            )
+
+        key_bytes = decodebytes(self.host_key.strip().encode())
+        algo = (self.host_key_algorithm or "ssh-ed25519").lower()
+        if algo in {"ssh-rsa", "rsa"}:
+            key = paramiko.RSAKey(data=key_bytes)
+            key_name = "ssh-rsa"
+        elif algo in {"ssh-ed25519", "ed25519"}:
+            key = paramiko.Ed25519Key(data=key_bytes)
+            key_name = "ssh-ed25519"
+        else:
+            raise ValueError(f"Unsupported SFTP host_key_algorithm: {self.host_key_algorithm}")
+
+        host_keys = self.ssh_connection.get_host_keys()
+        host_keys.add(self.host, key_name, key)
+        # Paramiko may look up "host" or "[host]:port" depending on connect path.
+        host_keys.add(f"[{self.host}]:{self.port}", key_name, key)
 
     def __enter__(self) -> Callable:
         """Connect to the SFTP server.
@@ -76,7 +108,7 @@ class SftpConnection:
         """
         try:
             self.ssh_connection = paramiko.SSHClient()
-            self.ssh_connection.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            self._apply_host_key_policy()
             if self.private_key:
                 if self.private_key_algorithm == PublicKeyAlgorithms.RSA.name:
                     f__from_private_key = paramiko.RSAKey.from_private_key
@@ -89,13 +121,30 @@ class SftpConnection:
                 else:
                     private_key = f__from_private_key(io.StringIO(self.private_key))
 
-                self.ssh_connection.connect(hostname=self.host, port=self.port,
-                                            username=self.username, pkey=private_key,
-                                            key_filename=None, timeout=None,
-                                            allow_agent=False, look_for_keys=False)
+                self.ssh_connection.connect(
+                    hostname=self.host,
+                    port=self.port,
+                    username=self.username,
+                    pkey=private_key,
+                    key_filename=None,
+                    timeout=30,
+                    banner_timeout=30,
+                    auth_timeout=30,
+                    allow_agent=False,
+                    look_for_keys=False,
+                )
             else:
-                self.ssh_connection.connect(hostname=self.host, port=self.port,
-                                            username=self.username, password=self.password)
+                self.ssh_connection.connect(
+                    hostname=self.host,
+                    port=self.port,
+                    username=self.username,
+                    password=self.password,
+                    timeout=30,
+                    banner_timeout=30,
+                    auth_timeout=30,
+                    allow_agent=False,
+                    look_for_keys=False,
+                )
 
             self.sftp_handler = paramiko.SFTPClient.from_transport(self.ssh_connection.get_transport())
 
