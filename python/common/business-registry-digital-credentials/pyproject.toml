@@ -7,8 +7,8 @@ readme = "README.md"
 packages = [{ include = "business_registry_digital_credentials", from = "src" }]
 
 [tool.poetry.dependencies]
-business-model = { git = "https://github.com/bcgov/lear-agentic.git", rev = "037720803", subdirectory = "python/common/business-registry-model" }
-business-registry-common = { git = "https://github.com/bcgov/lear-agentic.git", rev = "037720803", subdirectory = "python/common/business-registry-common" }
+business-model = { git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-model" }
+business-registry-common = { git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-common" }
 python = ">=3.13,<3.14"
 flask-jwt-oidc = "^0.8.0"
 pyjwt = "^2.8.0"
