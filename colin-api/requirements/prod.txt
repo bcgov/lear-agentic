@@ -1,6 +1,7 @@
 oracledb
 datedelta
-gunicorn
+ecdsa>=0.19.0
+gunicorn>=23.0.0
 Flask
 Flask-Moment
 Flask-RESTX
