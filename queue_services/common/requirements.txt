@@ -1,6 +1,6 @@
-aiohttp
-attrs
-python-dotenv
-sentry-sdk[flask]
-asyncio-nats-client
-asyncio-nats-streaming
+aiohttp>=3.13.3,<4.0.0
+attrs>=23.1.0,<27.0.0
+python-dotenv>=1.1.0,<2.0.0
+sentry-sdk[flask]>=1.20.0,<3.0.0
+asyncio-nats-client>=0.11.4,<0.12.0
+asyncio-nats-streaming==0.4.0
