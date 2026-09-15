@@ -16,7 +16,7 @@
 These will get initialized by the application.
 """
 import cx_Oracle
-from flask import _app_ctx_stack, current_app
+from flask import current_app, g, has_app_context
 
 
 class OracleDB:
@@ -37,11 +37,11 @@ class OracleDB:
         app.teardown_appcontext(self.teardown)
 
     @staticmethod
-    def teardown():
+    def teardown(exception=None):  # pylint: disable=unused-argument
         """Oracle session pool cleans up after itself."""
-        ctx = _app_ctx_stack.top
-        if hasattr(ctx, 'oracle_pool'):
-            ctx.oracle_pool.close()
+        pool = g.pop('_oracle_pool', None)
+        if pool is not None:
+            pool.close()
 
     @staticmethod
     def _create_pool():
@@ -86,11 +86,10 @@ class OracleDB:
         and then return an acquired session
         :return: cx_Oracle.connection type
         """
-        ctx = _app_ctx_stack.top
-        if ctx is not None:
-            if not hasattr(ctx, '_oracle_pool'):
-                ctx._oracle_pool = self._create_pool()  # pylint: disable = protected-access; need this method
-            return ctx._oracle_pool.acquire()  # pylint: disable = protected-access; need this method
+        if has_app_context():
+            if not hasattr(g, '_oracle_pool'):
+                g._oracle_pool = self._create_pool()  # pylint: disable = protected-access; need this method
+            return g._oracle_pool.acquire()  # pylint: disable = protected-access; need this method
 
 
 # export instance of this class
