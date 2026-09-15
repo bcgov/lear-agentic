@@ -1,44 +1,20 @@
-# Plan — {{SERVICE_NAME}}
-
-> Architecture and delivery approach. Technology belongs here (not in `spec.md`).
+# Plan — TEST-003 data-tool / ETL non-zero coverage
 
 ## Summary
 
-{{How we will realize the spec.}}
+Add lightweight pytest smokes that assert on real modules without live infrastructure. Tag `@R-51.1+`.
 
 ## Architecture
 
 ```text
-{{e.g. Browser → OpenShift Route → Service → API → DB}}
+data-tool/tests/test_test003_smoke.py
+jobs/sftp-{gazette,icbc-report,nuans-report}/tests/unit/test_test003_smoke.py
+jobs/colin-extract-refresh/tests/test_test003_smoke.py (+ pytest.ini, requirements-dev.txt)
+jobs/dbc-message-sender/tests/test_test003_smoke.py (+ pytest.ini, requirements-dev.txt)
 ```
-
-## Key decisions (ADRs may expand)
-
-| Decision | Choice | Rationale |
-| --- | --- | --- |
-| UI | B.C. Design System React | Constitution P2 |
-| Hosting | OpenShift PaaS | Constitution P4 |
-| Auth | {{Entra / …}} | {{…}} |
-
-## Security & privacy
-
-- Classification: {{…}}
-- PIA status: {{not started / in progress / complete — link}}
-- Secrets: {{…}}
-
-## Test approach
-
-- Default integrity tier: **CODEOWNERS on acceptance criteria**
-- Features under `spec/features/` owned by: {{QA lead / path}}
-
-## Rollout
-
-- Environments: {{dev / test / prod}}
-- Migration / cutover: {{n/a for greenfield}}
 
 ## Approval (checkpoint 2)
 
 | Role | Name | Date |
 | --- | --- | --- |
-| Architect / tech lead | | |
-| Security (if required) | | |
+| Architect / tech lead | local-agent | 2026-09-15 |
