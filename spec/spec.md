@@ -1,26 +1,5 @@
-# Spec — Ephemeral JWT test keys (SECRET-001)
+# Spec (merge-train stub)
 
-## Feature proposal
-GitHub issue **#18** — `[SECRET-001] RSA JWT Private Test Key Committed in Source TestConfig Classes` (High).
+Signed slice artifacts for each remediation PR are archived under `docs/sdlc/PR-<n>/`.
 
-## Problem
-A static RSA private key used for JWT test mode is committed in Legal API and business-registry-account TestConfig. If test mode is mis-enabled in a higher environment, attackers can forge tokens with that published key.
-
-## Outcome
-TestConfig no longer embeds a static private key. Test JWT material is generated per process so the repository does not publish a reusable forging key.
-
-## Scope
-### In scope
-- Remove committed PEM/JWKS private material from both TestConfig classes
-- Generate ephemeral matching public/private test material at runtime
-
-### Out of scope
-- Git history purge of the prior key; enforcing JWT_OIDC_TEST_MODE=false in deploy configs (ops)
-
-## Journeys
-1. TestConfig uses process-local keys — `features/secret-001-ephemeral-jwt-test-keys.feature`
-
-## Sign-off (checkpoint 1)
-| Role | Name | Date |
-| --- | --- | --- |
-| Product / PM | local-agent | 2026-09-15 |
+Canonical `spec/spec.md`, `spec/plan.md`, and `spec/tasks.md` are intentionally identical across open RA PRs so sequential merges onto `main` do not add/add-conflict.
