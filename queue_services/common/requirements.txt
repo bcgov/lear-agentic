@@ -1,6 +1,13 @@
-aiohttp
-attrs
-python-dotenv
-sentry-sdk[flask]
-asyncio-nats-client
-asyncio-nats-streaming
+# Shared queue-common production deps.
+# DEP-014 / coordinates with DEP-008 (PR #82): pins stop floating installs.
+# Residual: asyncio-nats-* packages are deprecated. Core NATS successor is nats-py;
+# asyncio-nats-streaming / NATS Streaming is EOL (JetStream migration required for
+# entity_queue_common STAN clients — not a drop-in swap).
+aiohttp>=3.13.3,<4.0.0
+attrs>=23.1.0,<27.0.0
+python-dotenv>=1.1.0,<2.0.0
+sentry-sdk[flask]>=1.20.0,<3.0.0
+# DEPRECATED — prefer nats-py for core NATS; retained for STAN worker compatibility.
+asyncio-nats-client>=0.11.4,<0.12.0
+# DEPRECATED / EOL — NATS Streaming; migrate consumers to JetStream before removal.
+asyncio-nats-streaming==0.4.0

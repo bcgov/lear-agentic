@@ -1,44 +1,19 @@
-# Plan — {{SERVICE_NAME}}
-
-> Architecture and delivery approach. Technology belongs here (not in `spec.md`).
+# Plan — DEP-013 / DEP-014 NATS residual
 
 ## Summary
 
-{{How we will realize the spec.}}
+In data-tool, remove unused `asyncio-nats-client` / `asyncio-nats-streaming` and add `nats-py>=2.9.0,<3.0.0`. In queue-common, apply the same compatible pins as DEP-008 (`asyncio-nats-client>=0.11.4,<0.12.0`, `asyncio-nats-streaming==0.4.0`) plus deprecation comments documenting that STAN usage blocks a minimal nats-py migration.
 
-## Architecture
-
-```text
-{{e.g. Browser → OpenShift Route → Service → API → DB}}
-```
-
-## Key decisions (ADRs may expand)
+## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| UI | B.C. Design System React | Constitution P2 |
-| Hosting | OpenShift PaaS | Constitution P4 |
-| Auth | {{Entra / …}} | {{…}} |
-
-## Security & privacy
-
-- Classification: {{…}}
-- PIA status: {{not started / in progress / complete — link}}
-- Secrets: {{…}}
-
-## Test approach
-
-- Default integrity tier: **CODEOWNERS on acceptance criteria**
-- Features under `spec/features/` owned by: {{QA lead / path}}
-
-## Rollout
-
-- Environments: {{dev / test / prod}}
-- Migration / cutover: {{n/a for greenfield}}
+| data-tool | swap to nats-py | No in-tree imports of deprecated clients |
+| queue-common | pin + residual | STAN APIs in entity_queue_common are not drop-in with nats-py |
+| Pin values | match DEP-008 / #82 | Avoid divergent ranges across open PRs |
 
 ## Approval (checkpoint 2)
 
 | Role | Name | Date |
 | --- | --- | --- |
-| Architect / tech lead | | |
-| Security (if required) | | |
+| Architect / tech lead | local-agent | 2026-09-15 |
