@@ -1,14 +1,5 @@
-# Spec — Document/permissions logging + Postman syntax CI (LOG-014 / LOG-015 / TEST-005)
+# Spec (merge-train stub)
 
-## Feature proposal
-Issues **#58**, **#59**, **#66**.
+Signed slice artifacts for each remediation PR are archived under `docs/sdlc/PR-<n>/`.
 
-## Outcome
-- Document service decode failures are logged.
-- 403/permission denials log actor id + roles presence + resource (non-PII).
-- CI syntax-validates Postman collection/environment without live secrets.
-
-## Sign-off
-| Role | Name | Date |
-| --- | --- | --- |
-| Product / PM | local-agent | 2026-09-15 |
+Canonical `spec/spec.md`, `spec/plan.md`, and `spec/tasks.md` are intentionally identical across open RA PRs so sequential merges onto `main` do not add/add-conflict.
