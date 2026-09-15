@@ -17,6 +17,7 @@
 Test-Suite to ensure that the /businesses endpoint is working as expected.
 """
 import copy
+import logging
 from datetime import UTC
 from http import HTTPStatus
 from unittest.mock import patch
@@ -53,7 +54,7 @@ from registry_schemas.example_data import (
 from tests import integration_affiliation
 from tests.unit.models import factory_batch, factory_batch_processing, factory_business, factory_filing, factory_pending_filing
 from tests.unit.services.warnings import create_business
-from tests.unit.services.utils import create_header
+from tests.unit.services.utils import create_header, helper_create_jwt
 from tests.unit.models import factory_completed_filing
 
 
@@ -1322,3 +1323,102 @@ def test_get_businesses_colin_snapshot_colin_failures(app, session, client, jwt,
 
     assert rv.status_code == expected_status
     assert rv.json['message'] == expected_message
+
+
+def _seed_business_for_account_log_tests(identifier: str = 'CP7654321'):
+    """Create a minimal business used by LOG-001 account-info log tests."""
+    factory_business_model(legal_name=f'{identifier} legal name',
+                           identifier=identifier,
+                           founding_date=datetime.fromtimestamp(0, UTC),
+                           last_ledger_timestamp=datetime.fromtimestamp(0, UTC),
+                           last_modified=datetime.fromtimestamp(0, UTC))
+
+
+def _system_headers_with_oidc_pii(jwt_manager):
+    """Bearer header whose claims include identity-PII markers for log assertions."""
+    token = helper_create_jwt(
+        jwt_manager,
+        roles=[SYSTEM_ROLE],
+        username='pii-user',
+        extra_claims={
+            'preferred_username': 'pii-preferred-user',
+            'email': 'pii@example.com',
+            'sub': 'pii-sub-uuid-0001',
+            'realm_access': {'roles': [SYSTEM_ROLE, 'pii-role-dump']},
+        },
+    )
+    return {
+        'content-type': 'application/json',
+        'Authorization': f'Bearer {token}',
+    }
+
+
+# criterion: @R-08.1
+def test_get_business_account_info_log_omits_jwt_oidc_pii(app, session, client, jwt, mocker, caplog):
+    """@R-08.1 — VALID account request INFO log has no OIDC identity PII."""
+    identifier = 'CP7654321'
+    account_id = '28'
+    _seed_business_for_account_log_tests(identifier)
+    mocker.patch(
+        'legal_api.resources.v2.business.business.AccountService.get_account_by_affiliated_identifier',
+        return_value={'orgs': [{'id': account_id}]},
+    )
+
+    with caplog.at_level(logging.INFO):
+        rv = client.get(
+            f'/api/v2/businesses/{identifier}?account={account_id}',
+            headers=_system_headers_with_oidc_pii(jwt),
+        )
+
+    assert rv.status_code == HTTPStatus.OK
+    valid_msgs = [rec.getMessage() for rec in caplog.records if 'VALID account request' in rec.getMessage()]
+    assert valid_msgs, 'expected VALID account request INFO log'
+    msg = valid_msgs[0]
+    assert account_id in msg
+    assert identifier in msg
+    assert 'pii-preferred-user' not in msg
+    assert 'pii@example.com' not in msg
+    assert 'pii-sub-uuid-0001' not in msg
+    assert 'pii-role-dump' not in msg
+    assert 'realm_access' not in msg
+    assert 'jwt:' not in msg
+
+
+# criterion: @R-08.2
+def test_get_business_account_info_sets_account_id(app, session, client, jwt, mocker):
+    """@R-08.2 — matching affiliated org still attaches accountId on the business payload."""
+    identifier = 'CP7654321'
+    account_id = '28'
+    _seed_business_for_account_log_tests(identifier)
+    mocker.patch(
+        'legal_api.resources.v2.business.business.AccountService.get_account_by_affiliated_identifier',
+        return_value={'orgs': [{'id': int(account_id)}]},
+    )
+
+    rv = client.get(
+        f'/api/v2/businesses/{identifier}?account={account_id}',
+        headers=create_header(jwt, [SYSTEM_ROLE], identifier),
+    )
+
+    assert rv.status_code == HTTPStatus.OK
+    assert rv.json['business']['accountId'] == account_id
+
+
+# criterion: @R-08.3
+def test_get_business_account_info_omits_account_id_when_unmatched(app, session, client, jwt, mocker):
+    """@R-08.3 — unmatched account does not attach accountId."""
+    identifier = 'CP7654321'
+    account_id = '28'
+    _seed_business_for_account_log_tests(identifier)
+    mocker.patch(
+        'legal_api.resources.v2.business.business.AccountService.get_account_by_affiliated_identifier',
+        return_value={'orgs': [{'id': 999}]},
+    )
+
+    rv = client.get(
+        f'/api/v2/businesses/{identifier}?account={account_id}',
+        headers=create_header(jwt, [SYSTEM_ROLE], identifier),
+    )
+
+    assert rv.status_code == HTTPStatus.OK
+    assert 'accountId' not in rv.json['business']
