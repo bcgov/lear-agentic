@@ -21,9 +21,9 @@ grpcio = ">=1.78.2"
 grpcio-status = ">=1.78.2"
 
 # Git-based dependencies
-gcp-queue = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/gcp-queue", branch = "main" }
-structured-logging = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/structured-logging", branch = "main" }
-cloud-sql-connector = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/cloud-sql-connector", branch = "main" }
+gcp-queue = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/gcp-queue", rev = "42a520b3fc6f989d9401a34aa2267907ec1dc75f" }
+structured-logging = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/structured-logging", rev = "42a520b3fc6f989d9401a34aa2267907ec1dc75f" }
+cloud-sql-connector = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/cloud-sql-connector", rev = "42a520b3fc6f989d9401a34aa2267907ec1dc75f" }
 
 
 

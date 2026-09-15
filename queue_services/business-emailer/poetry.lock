@@ -700,8 +700,8 @@ sqlalchemy = "^2.0.0"
 [package.source]
 type = "git"
 url = "https://github.com/bcgov/sbc-connect-common.git"
-reference = "main"
-resolved_reference = "9a760cf5ea31d3f95806c2dcac15ca9d9800df51"
+reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
+resolved_reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
 subdirectory = "python/cloud-sql-connector"
 
 [[package]]
@@ -1355,8 +1355,8 @@ simple-cloudevent = {git = "https://github.com/daxiom/simple-cloudevent.py.git"}
 [package.source]
 type = "git"
 url = "https://github.com/bcgov/sbc-connect-common.git"
-reference = "main"
-resolved_reference = "87012397b3ca62e15ffa542214d80f2d2ae7e72d"
+reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
+resolved_reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
 subdirectory = "python/gcp-queue"
 
 [[package]]
@@ -3492,8 +3492,8 @@ structlog = "^24.1.0"
 [package.source]
 type = "git"
 url = "https://github.com/bcgov/sbc-connect-common.git"
-reference = "main"
-resolved_reference = "87012397b3ca62e15ffa542214d80f2d2ae7e72d"
+reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
+resolved_reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
 subdirectory = "python/structured-logging"
 
 [[package]]
@@ -3862,4 +3862,4 @@ test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-it
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "50e6fc9db352a6162f114485be07da051ee4dad38f9a181c1f68a82867f12843"
+content-hash = "6b3cb2eb28cf5b51dfd48ad8f4d0003cd1b1c14b72c3e46d6396ac643576ca80"

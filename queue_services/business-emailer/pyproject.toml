@@ -85,9 +85,9 @@ zipp = "3.19.1"
 legacy-cgi = "^2.6.3"
 
 # Git-based dependencies
-gcp-queue = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/gcp-queue", branch = "main" }
-structured-logging = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/structured-logging", branch = "main" }
-cloud-sql-connector = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/cloud-sql-connector", branch = "main" }
+gcp-queue = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/gcp-queue", rev = "42a520b3fc6f989d9401a34aa2267907ec1dc75f" }
+structured-logging = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/structured-logging", rev = "42a520b3fc6f989d9401a34aa2267907ec1dc75f" }
+cloud-sql-connector = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/cloud-sql-connector", rev = "42a520b3fc6f989d9401a34aa2267907ec1dc75f" }
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.3.5"

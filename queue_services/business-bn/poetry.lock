@@ -648,8 +648,8 @@ sqlalchemy = "^2.0.0"
 [package.source]
 type = "git"
 url = "https://github.com/bcgov/sbc-connect-common.git"
-reference = "main"
-resolved_reference = "9a760cf5ea31d3f95806c2dcac15ca9d9800df51"
+reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
+resolved_reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
 subdirectory = "python/cloud-sql-connector"
 
 [[package]]
@@ -1259,8 +1259,8 @@ simple-cloudevent = {git = "https://github.com/daxiom/simple-cloudevent.py.git"}
 [package.source]
 type = "git"
 url = "https://github.com/bcgov/sbc-connect-common.git"
-reference = "main"
-resolved_reference = "2a3d5a2d5b5ff3c905626f3193db5ed0af6d4952"
+reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
+resolved_reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
 subdirectory = "python/gcp-queue"
 
 [[package]]
@@ -3236,8 +3236,8 @@ structlog = "^24.1.0"
 [package.source]
 type = "git"
 url = "https://github.com/bcgov/sbc-connect-common.git"
-reference = "main"
-resolved_reference = "2a3d5a2d5b5ff3c905626f3193db5ed0af6d4952"
+reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
+resolved_reference = "42a520b3fc6f989d9401a34aa2267907ec1dc75f"
 subdirectory = "python/structured-logging"
 
 [[package]]
@@ -3562,4 +3562,4 @@ tomli = "*"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "26c35bbd4042ca3e874e12e8bde926e8a1be2ea2e78335d42ac42980c9313fa3"
+content-hash = "b50139bd098c5a91f6c5e2c111df8bce829450bb5401ce6b9beb35de94fc5259"
