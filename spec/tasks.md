@@ -1,2 +1,3 @@
-# Tasks — SECRET-009
-- [x] TASK-001 — Remove commented credential line — `@R-65.1`
+# Tasks (merge-train stub)
+
+See `docs/sdlc/PR-<n>/tasks.md` for the signed tasks for this slice.

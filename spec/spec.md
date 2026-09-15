@@ -1,12 +1,5 @@
-# Spec — Remove commented SFTP credentials (SECRET-009)
+# Spec (merge-train stub)
 
-## Feature proposal
-Issue **#65** — commented-out SFTP username/password must not remain in source.
+Signed slice artifacts for each remediation PR are archived under `docs/sdlc/PR-<n>/`.
 
-## Outcome
-No hardcoded SFTP credentials (even in comments) in sftp-gazette connection code.
-
-## Sign-off
-| Role | Name | Date |
-| --- | --- | --- |
-| Product / PM | local-agent | 2026-09-15 |
+Canonical `spec/spec.md`, `spec/plan.md`, and `spec/tasks.md` are intentionally identical across open RA PRs so sequential merges onto `main` do not add/add-conflict.
