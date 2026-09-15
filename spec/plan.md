@@ -1,44 +1,8 @@
-# Plan — {{SERVICE_NAME}}
-
-> Architecture and delivery approach. Technology belongs here (not in `spec.md`).
-
-## Summary
-
-{{How we will realize the spec.}}
-
-## Architecture
-
-```text
-{{e.g. Browser → OpenShift Route → Service → API → DB}}
-```
-
-## Key decisions (ADRs may expand)
-
-| Decision | Choice | Rationale |
-| --- | --- | --- |
-| UI | B.C. Design System React | Constitution P2 |
-| Hosting | OpenShift PaaS | Constitution P4 |
-| Auth | {{Entra / …}} | {{…}} |
-
-## Security & privacy
-
-- Classification: {{…}}
-- PIA status: {{not started / in progress / complete — link}}
-- Secrets: {{…}}
-
-## Test approach
-
-- Default integrity tier: **CODEOWNERS on acceptance criteria**
-- Features under `spec/features/` owned by: {{QA lead / path}}
-
-## Rollout
-
-- Environments: {{dev / test / prod}}
-- Migration / cutover: {{n/a for greenfield}}
-
-## Approval (checkpoint 2)
-
+# Plan — DEP-003
+Generate `colin-api/requirements.lock` via pip-compile from requirements.txt excluding cx-Oracle, git schemas, and debugpy.
+## Residual
+cx-Oracle and registry_schemas still installed outside the lock; DEP-004 pins schemas.
+## Approval
 | Role | Name | Date |
 | --- | --- | --- |
-| Architect / tech lead | | |
-| Security (if required) | | |
+| Architect | local-agent | 2026-09-15 |

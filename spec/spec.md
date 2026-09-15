@@ -1,54 +1,12 @@
-# Spec — {{SERVICE_NAME}}
-
-> Technology-free. Describe *what* and *why*, not frameworks or cloud products.
+# Spec — Colin API dependency lockfile (DEP-003)
 
 ## Feature proposal
-
-The **Feature issue** is the proposal — link the GitHub issue (e.g. `#123`) and summarize the agreed outcome this spec implements.
-
-## Problem
-
-{{Who is stuck, and what pain do they have today?}}
+Issue **#8** — DEP-003: colin-api has no lockfile for transitive dependencies.
 
 ## Outcome
+A committed `requirements.lock` captures resolved transitive versions for PyPI pins so installs are reproducible (with documented exceptions for Oracle and git deps).
 
-{{Measurable outcome for the user / business.}}
-
-## Users & personas
-
-| Persona | Goal |
-| --- | --- |
-| {{…}} | {{…}} |
-
-## Scope
-
-### In scope (this release)
-
-- {{…}}
-
-### Out of scope
-
-- {{…}}
-
-## Journeys
-
-1. {{Happy path name}} — see `features/{{name}}.feature`
-2. {{…}}
-
-## Non-functional requirements
-
-- Accessibility: WCAG 2.1 AA
-- Privacy: {{classification + PIA status}}
-- Availability: {{…}}
-
-## Open questions
-
-- [ ] {{…}}
-
-## Sign-off (checkpoint 1)
-
+## Sign-off
 | Role | Name | Date |
 | --- | --- | --- |
-| Product / PM | | |
-| BA | | |
-| QA (acceptance ownership) | | |
+| Product / PM | local-agent | 2026-09-15 |
