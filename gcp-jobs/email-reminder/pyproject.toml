@@ -11,14 +11,14 @@ requires-python = ">=3.13,<3.14"
 dependencies = [
     "flask (>=3.1.0,<4.0.0)",
     "launchdarkly-server-sdk (>=9.10.0,<10.0.0)",
-    "business-registry-common @ git+https://github.com/bcgov/lear.git@main#subdirectory=python/common/business-registry-common",
-    "business-model @ git+https://github.com/bcgov/lear.git@main#subdirectory=python/common/business-registry-model",
-    "structured-logging @ git+https://github.com/bcgov/sbc-connect-common.git@main#subdirectory=python/structured-logging",
-    "gcp-queue @ git+https://github.com/bcgov/sbc-connect-common.git@main#subdirectory=python/gcp-queue",
+    "business-registry-common @ git+https://github.com/bcgov/lear.git@f99be5a71fcca9c99b66015330bfed672616c434#subdirectory=python/common/business-registry-common",
+    "business-model @ git+https://github.com/bcgov/lear.git@f99be5a71fcca9c99b66015330bfed672616c434#subdirectory=python/common/business-registry-model",
+    "structured-logging @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/structured-logging",
+    "gcp-queue @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/gcp-queue",
     "flask-jwt-oidc (>=0.8.0,<0.9.0)",
-    "business-registry-account @ git+https://github.com/bcgov/lear.git@main#subdirectory=python/common/business-registry-account",
+    "business-registry-account @ git+https://github.com/bcgov/lear.git@f99be5a71fcca9c99b66015330bfed672616c434#subdirectory=python/common/business-registry-account",
     "flask-script (>=2.0.6,<3.0.0)",
-    "cloud-sql-connector @ git+https://github.com/bcgov/sbc-connect-common.git@main#subdirectory=python/cloud-sql-connector",
+    "cloud-sql-connector @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/cloud-sql-connector",
 ]
 
 

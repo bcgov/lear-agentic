@@ -1,54 +1,25 @@
-# Spec — {{SERVICE_NAME}}
-
-> Technology-free. Describe *what* and *why*, not frameworks or cloud products.
+# Spec — Pin internal git dependencies (DEP-005)
 
 ## Feature proposal
-
-The **Feature issue** is the proposal — link the GitHub issue (e.g. `#123`) and summarize the agreed outcome this spec implements.
+GitHub issue **#10** — DEP-005: internal libraries sourced from `@main` without commit SHA.
 
 ## Problem
-
-{{Who is stuck, and what pain do they have today?}}
+Modern components pull internal packages from GitHub `@main`, so every reinstall can silently change production code.
 
 ## Outcome
-
-{{Measurable outcome for the user / business.}}
-
-## Users & personas
-
-| Persona | Goal |
-| --- | --- |
-| {{…}} | {{…}} |
+Git dependency URLs reference immutable commit SHAs for `bcgov/lear` and `bcgov/sbc-connect-common` packages.
 
 ## Scope
-
-### In scope (this release)
-
-- {{…}}
+### In scope
+- Replace `@main` with commit SHAs across pyproject.toml files in this repository that use those hosts
 
 ### Out of scope
-
-- {{…}}
+- Migrating to published package versions / path deps (follow-up modernization)
 
 ## Journeys
+1. Reproducible installs — `features/dep-005-pin-git-main.feature`
 
-1. {{Happy path name}} — see `features/{{name}}.feature`
-2. {{…}}
-
-## Non-functional requirements
-
-- Accessibility: WCAG 2.1 AA
-- Privacy: {{classification + PIA status}}
-- Availability: {{…}}
-
-## Open questions
-
-- [ ] {{…}}
-
-## Sign-off (checkpoint 1)
-
+## Sign-off
 | Role | Name | Date |
 | --- | --- | --- |
-| Product / PM | | |
-| BA | | |
-| QA (acceptance ownership) | | |
+| Product / PM | local-agent | 2026-09-15 |
