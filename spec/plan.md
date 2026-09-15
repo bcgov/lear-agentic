@@ -10,7 +10,7 @@ Replace unconditional `AutoAddPolicy` in furnishings `SftpConnection` with fail-
 
 ```text
 Furnishings job
-  → SftpConnection(host, …, host_key=from config, verify_host=True)
+  → SftpConnection(host, …, host_key=from config)
       → SSHClient + RejectPolicy
       → host key added from vault/env
       → SFTPClient
@@ -22,8 +22,8 @@ Furnishings job
 | --- | --- | --- |
 | Default policy | Reject unknown hosts | Closes MITM; matches other LEAR SFTP jobs |
 | Key material | Base64 host-key env per endpoint | Same pattern as `jobs/sftp-nuans-report` |
-| Test harness | ephemeral host key fetched for fixture | pytest-sftpserver uses ephemeral keys |
-| Opt-out logging | Warning when verification disabled | Makes residual risk visible in logs |
+| Test harness | fetch ephemeral host key via Transport | never AutoAddPolicy in product or harness client |
+| No opt-out | Host key always required | Closes CodeQL AutoAddPolicy finding |
 
 ## Security & privacy
 
@@ -33,7 +33,7 @@ Furnishings job
 
 ## Test approach
 
-- Unit: policy selection; missing key raises when verify on; existing put/get tests with `verify_host=False`
+- Unit: RejectPolicy; missing key raises; ephemeral server tests use fetched host key
 - Acceptance: Gherkin `@R-03.1` / `@R-03.2` in `spec/features/config-003-sftp-host-key.feature`
 - Provenance header on new unit test file
 
