@@ -13,9 +13,11 @@
 # limitations under the License.
 """Common setup and fixtures for the pytest suite used by this service."""
 import contextlib
+import socket
 import json
 
 import business_model_migrations
+import paramiko
 import pytest
 import sqlalchemy
 from flask import Flask
@@ -50,18 +52,29 @@ def app(ld):
         yield _app
 
 
+def _ephemeral_sftp_host_key(sftpserver) -> tuple[str, str]:
+    """Read pytest-sftpserver host key without AutoAddPolicy (CONFIG-003)."""
+    with socket.create_connection((sftpserver.host, sftpserver.port), timeout=5) as sock:
+        transport = paramiko.Transport(sock)
+        try:
+            transport.start_client(timeout=5)
+            key = transport.get_remote_server_key()
+        finally:
+            transport.close()
+    return key.get_base64(), key.get_name()
+
+
 @pytest.fixture(scope="session")
 def sftpconnection(sftpserver):
-    """
-    Returns a session-wide SFTP connection.
-    """
+    """Return a session-wide SFTP connection with verified ephemeral host key."""
+    host_key, host_key_algorithm = _ephemeral_sftp_host_key(sftpserver)
     return SftpConnection(
         username="user",
         password="pwd",
         host=sftpserver.host,
         port=sftpserver.port,
-        # Ephemeral pytest-sftpserver keys — explicit opt-out only for harnesses.
-        verify_host=False,
+        host_key=host_key,
+        host_key_algorithm=host_key_algorithm,
     )
 
 def create_test_db(

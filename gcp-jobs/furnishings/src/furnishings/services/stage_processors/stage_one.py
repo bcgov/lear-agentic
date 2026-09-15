@@ -74,7 +74,6 @@ class StageOneProcessor:
             private_key_passphrase=app.config.get("BCMAIL_SFTP_PRIVATE_KEY_PASSPHRASE"),
             host_key=app.config.get("BCMAIL_SFTP_HOST_KEY"),
             host_key_algorithm=app.config.get("BCMAIL_SFTP_HOST_KEY_ALGORITHM", "ssh-rsa"),
-            verify_host=True,
         )
 
     def process(self):

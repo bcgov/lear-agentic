@@ -4,7 +4,7 @@
 
 ## Summary
 
-Replace unconditional `AutoAddPolicy` in furnishings `SftpConnection` with fail-closed host-key verification: `RejectPolicy` plus an explicit known host key. Wire BCLaws / BCMail+ host-key config from environment. Unit tests use `verify_host=False` only in the pytest fixture (ephemeral sftpserver keys).
+Replace unconditional `AutoAddPolicy` in furnishings `SftpConnection` with fail-closed host-key verification: `RejectPolicy` plus an explicit known host key. Wire BCLaws / BCMail+ host-key config from environment. Unit tests fetch the ephemeral pytest-sftpserver host key via Transport and always use RejectPolicy.
 
 ## Architecture
 
@@ -22,7 +22,7 @@ Furnishings job
 | --- | --- | --- |
 | Default policy | Reject unknown hosts | Closes MITM; matches other LEAR SFTP jobs |
 | Key material | Base64 host-key env per endpoint | Same pattern as `jobs/sftp-nuans-report` |
-| Test harness | `verify_host=False` on fixture only | pytest-sftpserver uses ephemeral keys |
+| Test harness | ephemeral host key fetched for fixture | pytest-sftpserver uses ephemeral keys |
 | Opt-out logging | Warning when verification disabled | Makes residual risk visible in logs |
 
 ## Security & privacy

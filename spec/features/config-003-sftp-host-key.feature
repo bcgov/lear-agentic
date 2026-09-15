@@ -16,7 +16,8 @@ Feature: Furnishings SFTP verifies remote host identity
     Then the client rejects any other host identity
 
   @R-03.3
-  Scenario: Test harness may opt out of verification explicitly
-    Given furnishings SFTP verification is explicitly disabled for a test fixture
-    When a connection is opened to an ephemeral test server
-    Then the connection may proceed for automated tests only
+  Scenario: Test harness supplies the ephemeral server host key
+    Given an automated test SFTP server with an ephemeral host key
+    And the furnishings client is configured with that host key
+    When a connection is opened
+    Then the connection succeeds without AutoAddPolicy
