@@ -14,7 +14,7 @@
 """File processing rules and actions for the registration of a business."""
 import json
 import uuid
-import xml.etree.ElementTree as Et
+import defusedxml.ElementTree as Et
 from contextlib import suppress
 from datetime import UTC
 from http import HTTPStatus

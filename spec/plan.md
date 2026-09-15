@@ -1,44 +1,21 @@
-# Plan — {{SERVICE_NAME}}
-
-> Architecture and delivery approach. Technology belongs here (not in `spec.md`).
+# Plan — VULN-006 business-bn defusedxml
 
 ## Summary
 
-{{How we will realize the spec.}}
+Replace `xml.etree.ElementTree as Et` with `defusedxml.ElementTree as Et` in BN processors; add dependency + unit tests `@R-64.*`.
 
 ## Architecture
 
 ```text
-{{e.g. Browser → OpenShift Route → Service → API → DB}}
+bn_processors/{registration,admin,change_of_registration,dissolution_or_put_back_on}.py
+  import defusedxml.ElementTree as Et
+  Et.fromstring(...)
+pyproject.toml + poetry.lock → defusedxml
+tests/unit/test_vuln006_defusedxml.py
 ```
-
-## Key decisions (ADRs may expand)
-
-| Decision | Choice | Rationale |
-| --- | --- | --- |
-| UI | B.C. Design System React | Constitution P2 |
-| Hosting | OpenShift PaaS | Constitution P4 |
-| Auth | {{Entra / …}} | {{…}} |
-
-## Security & privacy
-
-- Classification: {{…}}
-- PIA status: {{not started / in progress / complete — link}}
-- Secrets: {{…}}
-
-## Test approach
-
-- Default integrity tier: **CODEOWNERS on acceptance criteria**
-- Features under `spec/features/` owned by: {{QA lead / path}}
-
-## Rollout
-
-- Environments: {{dev / test / prod}}
-- Migration / cutover: {{n/a for greenfield}}
 
 ## Approval (checkpoint 2)
 
 | Role | Name | Date |
 | --- | --- | --- |
-| Architect / tech lead | | |
-| Security (if required) | | |
+| Architect / tech lead | local-agent | 2026-09-15 |

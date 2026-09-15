@@ -13,7 +13,7 @@
 # limitations under the License.
 """File processing rules and actions for the change of registration of a business."""
 
-import xml.etree.ElementTree as Et
+import defusedxml.ElementTree as Et
 from contextlib import suppress
 from http import HTTPStatus
 

@@ -24,6 +24,7 @@ urllib3 = ">=2.3.0,<3.0.0"
 launchdarkly-server-sdk = "^9.10.0"
 gunicorn = "^23.0.0"
 regex = "^2026.1.15"
+defusedxml = "^0.7.1"
 
 # Git-based dependencies
 business-registry-account = { git = "https://github.com/bcgov/lear.git", branch = "main", subdirectory = "python/common/business-registry-account" }
