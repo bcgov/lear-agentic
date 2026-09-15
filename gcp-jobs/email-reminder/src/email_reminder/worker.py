@@ -75,8 +75,12 @@ def send_email(business_id: int, ar_fee: str, ar_year: str):
 
 def get_ar_fee(legal_type: str, token: str) -> str:
     """Get AR fee."""
-    current_app.logger.debug(f"token: {token}")
-    current_app.logger.debug(f"legal_type: {legal_type}")
+    # Never log bearer token (LOG-003 / CWE-532).
+    current_app.logger.debug(
+        "Fetching AR fee legal_type=%s bearer_token_present=%s",
+        legal_type,
+        bool(token),
+    )
     fee_url = current_app.config.get("PAYMENT_SVC_FEES_URL")
     current_app.logger.debug(f"fee_url: {fee_url}")
     filing_type_code = Filing.FILINGS["annualReport"]["codes"].get(legal_type, None)

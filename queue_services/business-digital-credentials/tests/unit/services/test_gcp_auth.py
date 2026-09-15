@@ -118,3 +118,58 @@ def test_verify_gcp_jwt_exceptions(mock_requests, mock_id_token, app):
         mock_id_token.verify_oauth2_token.return_value = {'aud': 'test'}  # Missing email keys
         result = verify_gcp_jwt(mock_flask_request)
         assert "Invalid token:" in result
+
+
+@patch('business_digital_credentials.services.gcp_auth.id_token')
+@patch('business_digital_credentials.services.gcp_auth.requests')
+def test_verify_gcp_jwt_debug_logs_omit_token_and_claim(mock_requests, mock_id_token, app, caplog):
+    """DEBUG must not include bearer token or full JWT claim (LOG-005)."""
+    import logging
+
+    secret_token = "Bearer super-secret-jwt-value"
+    claim_email = "svc-account@example.com"
+    mock_flask_request = MagicMock()
+    mock_flask_request.headers.get.return_value = secret_token
+    mock_id_token.verify_oauth2_token.return_value = {
+        'email': claim_email,
+        'email_verified': True,
+        'sub': 'subject-should-not-log',
+    }
+
+    with app.app_context():
+        app.config['SUB_AUDIENCE'] = 'test-audience'
+        app.config['SUB_SERVICE_ACCOUNT'] = claim_email
+        with caplog.at_level(logging.DEBUG):
+            result = verify_gcp_jwt(mock_flask_request)
+
+    assert result == ""
+    joined = " ".join(r.getMessage() for r in caplog.records)
+    assert "super-secret-jwt-value" not in joined
+    assert "Bearer" not in joined
+    assert "subject-should-not-log" not in joined
+    assert claim_email not in joined
+
+
+@patch('business_digital_credentials.services.gcp_auth.id_token')
+@patch('business_digital_credentials.services.gcp_auth.requests')
+def test_verify_gcp_jwt_logs_warning_on_failure(mock_requests, mock_id_token, app, caplog):
+    """Auth failures must emit WARNING with non-PII context (LOG-010)."""
+    import logging
+
+    mock_flask_request = MagicMock()
+    mock_flask_request.headers.get.return_value = "Bearer bad-token"
+    mock_id_token.verify_oauth2_token.side_effect = Exception("Token invalid")
+
+    with app.app_context():
+        app.config['SUB_AUDIENCE'] = 'test-audience'
+        app.config['SUB_SERVICE_ACCOUNT'] = 'test@example.com'
+        with caplog.at_level(logging.WARNING):
+            result = verify_gcp_jwt(mock_flask_request)
+
+    assert "Invalid token: Token invalid" in result
+    warnings = [r for r in caplog.records if r.levelno >= logging.WARNING]
+    assert warnings, "expected WARNING on auth failure"
+    warning_text = " ".join(r.getMessage() for r in warnings)
+    assert "GCP JWT verification failed" in warning_text
+    assert "bad-token" not in warning_text
+    assert "Token invalid" not in warning_text  # exception message may leak; type only

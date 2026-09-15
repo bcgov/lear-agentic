@@ -42,19 +42,25 @@ def verify_gcp_jwt(flask_request):
     msg = ""
     try:
         bearer_token = flask_request.headers.get("Authorization")
-        current_app.logger.debug("bearer_token %s", bearer_token)
+        # Never log bearer_token or JWT claim (LOG-007 / CWE-532).
         token = bearer_token.split(" ")[1]
         audience = current_app.config.get("SUB_AUDIENCE")
-        current_app.logger.debug("audience %s", audience)
+        current_app.logger.debug("GCP JWT verify audience configured=%s", bool(audience))
         claim = id_token.verify_oauth2_token(
             token, requests.Request(), audience=audience
         )
         sa_email = current_app.config.get("SUB_SERVICE_ACCOUNT")
-        current_app.logger.debug("sa_email %s", sa_email)
+        current_app.logger.debug("GCP JWT verify service account configured=%s", bool(sa_email))
         if not claim["email_verified"] or claim["email"] != sa_email:
             msg = f"Invalid service account or email not verified for email: {claim['email']}\n"
-        current_app.logger.debug("claim %s", claim)
+            current_app.logger.warning(
+                "GCP JWT verification failed: service account mismatch or email not verified"
+            )
 
     except Exception as err:  # pylint: disable=broad-exception-caught
         msg = f"Invalid token: {err}\n"
+        current_app.logger.warning(
+            "GCP JWT verification failed: %s",
+            type(err).__name__,
+        )
     return msg
