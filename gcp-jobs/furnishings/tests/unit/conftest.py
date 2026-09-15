@@ -14,7 +14,6 @@
 """Common setup and fixtures for the pytest suite used by this service."""
 import contextlib
 import json
-import socket
 
 import business_model_migrations
 import paramiko
@@ -52,22 +51,18 @@ def app(ld):
         yield _app
 
 
-def _ephemeral_sftp_host_key(sftpserver) -> tuple[str, str]:
-    """Read pytest-sftpserver host key without AutoAddPolicy (CONFIG-003)."""
-    with socket.create_connection((sftpserver.host, sftpserver.port), timeout=5) as sock:
-        transport = paramiko.Transport(sock)
-        try:
-            transport.start_client(timeout=5)
-            key = transport.get_remote_server_key()
-        finally:
-            transport.close()
+def _pytest_sftp_host_key() -> tuple[str, str]:
+    """Known host key shipped with pytest-sftpserver (no live probe / AutoAdd)."""
+    from pytest_sftpserver.consts import SERVER_KEY_PRIVATE
+
+    key = paramiko.RSAKey.from_private_key_file(SERVER_KEY_PRIVATE)
     return key.get_base64(), key.get_name()
 
 
 @pytest.fixture(scope="session")
 def sftpconnection(sftpserver):
-    """Return a session-wide SFTP connection with verified ephemeral host key."""
-    host_key, host_key_algorithm = _ephemeral_sftp_host_key(sftpserver)
+    """Return a session-wide SFTP connection with verified pytest-sftpserver host key."""
+    host_key, host_key_algorithm = _pytest_sftp_host_key()
     return SftpConnection(
         username="user",
         password="pwd",

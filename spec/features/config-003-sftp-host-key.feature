@@ -16,8 +16,8 @@ Feature: Furnishings SFTP verifies remote host identity
     Then the client rejects any other host identity
 
   @R-03.3
-  Scenario: Test harness supplies the ephemeral server host key
-    Given an automated test SFTP server with an ephemeral host key
+  Scenario: Test harness supplies the pytest-sftpserver packaged host key
+    Given an automated test SFTP server with a known packaged host key
     And the furnishings client is configured with that host key
     When a connection is opened
     Then the connection succeeds without AutoAddPolicy

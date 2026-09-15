@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Host-key verification behaviour for furnishings SFTP (CONFIG-003)."""
-import socket
-
 import paramiko
 import pytest
 
@@ -78,16 +76,11 @@ def test_uses_reject_policy_with_configured_key(app, monkeypatch):
     assert not any(isinstance(p, paramiko.AutoAddPolicy) for p in policies)
 
 
-def test_ephemeral_server_uses_fetched_host_key(app, sftpserver):
-    """@R-03.3 — harness supplies the ephemeral server key; never AutoAddPolicy."""
-    with socket.create_connection((sftpserver.host, sftpserver.port), timeout=5) as sock:
-        transport = paramiko.Transport(sock)
-        try:
-            transport.start_client(timeout=5)
-            key = transport.get_remote_server_key()
-        finally:
-            transport.close()
+def test_ephemeral_server_uses_packaged_host_key(app, sftpserver):
+    """@R-03.3 — harness uses pytest-sftpserver known key; never AutoAddPolicy."""
+    from pytest_sftpserver.consts import SERVER_KEY_PRIVATE
 
+    key = paramiko.RSAKey.from_private_key_file(SERVER_KEY_PRIVATE)
     conn = SftpConnection(
         username="user",
         password="pwd",
