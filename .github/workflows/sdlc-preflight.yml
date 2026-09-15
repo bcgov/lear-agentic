@@ -1,0 +1,26 @@
+name: SDLC / Preflight
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "sdlc.config.json"
+      - ".github/workflows/sdlc-*.yml"
+      - ".github/sdlc/**"
+      - "AGENTS.md"
+      - "constitution.md"
+      - "spec/**"
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Preflight
+        run: node .github/sdlc/preflight.mjs --root "$GITHUB_WORKSPACE"
