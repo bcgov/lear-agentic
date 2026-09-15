@@ -164,7 +164,13 @@ def process_email(ce: SimpleCloudEvent):  # pylint: disable=too-many-branches, t
     """Process the email contained in the submission."""
     etype = ce.type
     email_msg = ce.data
-    current_app.logger.debug("Attempting to process email: %s", ce.data)
+    # Never log full ce.data — may contain contact PII (LOG-006 / CWE-532).
+    data_keys = list(email_msg.keys()) if isinstance(email_msg, dict) else type(email_msg).__name__
+    current_app.logger.debug(
+        "Attempting to process email type=%s data_keys=%s",
+        etype,
+        data_keys,
+    )
     token = AccountService.get_bearer_token()
     if etype and etype == "bc.registry.names.request":
         option = email_msg.get("request", {}).get("option", None)
