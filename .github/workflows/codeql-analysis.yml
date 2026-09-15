@@ -1,15 +1,13 @@
 # Explicit CodeQL advanced-setup workflow (TEST-001).
-# Evidence: GitHub default CodeQL setup is also configured on this repo
-# (dynamic/github-code-scanning/codeql) and already analyzes PRs for
-# python / javascript-typescript / actions. This committed workflow makes
-# SAST portable and reviewable in-repo. Residual: may duplicate default-setup
-# analyses until an admin consolidates to one mechanism.
+# Default CodeQL setup is enabled on this repo and already analyzes PRs
+# (python / javascript-typescript / actions). Running advanced upload on
+# pull_request fails SARIF processing ("default setup is enabled").
+# Keep this workflow for main push / schedule / manual so SAST stays
+# portable in-repo; PRs rely on default setup until an admin consolidates.
 name: "CodeQL Analysis"
 
 on:
   push:
-    branches: [main]
-  pull_request:
     branches: [main]
   schedule:
     - cron: "17 5 * * 1"
