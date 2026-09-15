@@ -17,7 +17,6 @@ from contextlib import suppress
 from http import HTTPStatus
 
 import defusedxml.ElementTree as Et
-
 from flask import current_app
 
 from business_bn.bn_processors import bn_note, build_input_xml, get_splitted_business_number, request_bn_hub

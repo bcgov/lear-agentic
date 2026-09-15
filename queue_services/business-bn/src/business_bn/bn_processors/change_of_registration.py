@@ -17,7 +17,6 @@ from contextlib import suppress
 from http import HTTPStatus
 
 import defusedxml.ElementTree as Et
-
 import dpath.util
 from flask import current_app
 from sqlalchemy import and_, func
