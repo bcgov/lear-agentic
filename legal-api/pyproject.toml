@@ -175,7 +175,8 @@ minversion = "2.0"
 testpaths = [
    "tests",
 ]
-addopts = "--cov=src/legal_api"
+# fail-under floor from Codecov legalapi flag (~78%); keep below observed so CI is not always red
+addopts = "--cov=src/legal_api --cov-fail-under=70"
 python_files = [
    "test*.py"
 ]

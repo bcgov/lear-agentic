@@ -1,0 +1,46 @@
+# Lightweight Python SAST for legal-api and colin-api (TEST-001).
+# Complements CodeQL (default setup + codeql-analysis.yml).
+# Gate fails on High severity findings only so legacy Medium noise
+# (tracked separately) does not block every PR.
+name: Python SAST (Bandit)
+
+on:
+  pull_request:
+    paths:
+      - "legal-api/**"
+      - "colin-api/**"
+      - ".github/workflows/python-sast-bandit.yml"
+  push:
+    branches: [main]
+    paths:
+      - "legal-api/**"
+      - "colin-api/**"
+      - ".github/workflows/python-sast-bandit.yml"
+  workflow_dispatch:
+
+jobs:
+  bandit:
+    name: Bandit (${{ matrix.package }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [legal-api, colin-api]
+
+    defaults:
+      run:
+        working-directory: ./${{ matrix.package }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Bandit
+        run: pip install "bandit>=1.7,<2"
+
+      - name: Run Bandit (fail on High)
+        run: bandit -r src -x tests -lll -f txt

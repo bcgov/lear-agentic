@@ -10,6 +10,15 @@ coverage:
     patch: false
     project:
       default: false
+      # TEST-002: explicit floors (Codecov flags ~78% legalapi / ~31% colinapi as of 2026-09)
+      legalapi:
+        target: 70%
+        flags:
+          - legalapi
+      colinapi:
+        target: 25%
+        flags:
+          - colinapi
       backend:
         target: auto
         flags:
