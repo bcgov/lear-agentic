@@ -27,7 +27,8 @@ from flask import current_app
 from colin_api.exceptions import BusinessNotFoundException
 from colin_api.models.corp_name import CorpName
 from colin_api.resources.db import DB
-from colin_api.utils import convert_to_json_date, convert_to_json_datetime, convert_to_pacific_time, stringify_list
+from colin_api.utils import (build_in_clause, convert_to_json_date, convert_to_json_datetime,
+                            convert_to_pacific_time, stringify_list)
 
 
 class Business:  # pylint: disable=too-many-instance-attributes, too-many-public-methods
@@ -215,12 +216,14 @@ class Business:  # pylint: disable=too-many-instance-attributes, too-many-public
             return bn_15s
 
         try:
+            clause, binds = build_in_clause(identifiers, 'ident')
             cursor.execute(
                 f"""
                 SELECT corp_num, bn_15
                 FROM corporation
-                WHERE corp_num in ({stringify_list(identifiers)})
-                """
+                WHERE corp_num in ({clause})
+                """,
+                binds,
             )
 
             for row in cursor.fetchall():
@@ -294,8 +297,11 @@ class Business:  # pylint: disable=too-many-instance-attributes, too-many-public
                 # con.begin()
 
             corp_type_condition = ''
+            binds = {'corp_num': identifier}
             if corp_types:
-                corp_type_condition = f'corp.corp_typ_cd in ({stringify_list(corp_types)}) and '
+                clause, type_binds = build_in_clause(corp_types, 'ctype')
+                corp_type_condition = f'corp.corp_typ_cd in ({clause}) and '
+                binds.update(type_binds)
 
             cursor = con.cursor()
             cursor.execute(
@@ -319,7 +325,7 @@ class Business:  # pylint: disable=too-many-instance-attributes, too-many-public
                 where {corp_type_condition} corp.corp_num=:corp_num
                 order by filing.period_end_dt desc nulls last
                 """,
-                corp_num=identifier
+                binds,
             )
             business = cursor.fetchone()
             if not business:

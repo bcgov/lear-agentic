@@ -22,7 +22,7 @@ from typing import List, Optional
 from flask import current_app
 
 from colin_api.resources.db import DB
-from colin_api.utils import stringify_list
+from colin_api.utils import build_in_clause
 
 
 # pylint: disable=too-few-public-methods
@@ -70,19 +70,21 @@ class FilingType:
             if not cursor:
                 cursor = DB.connection.cursor()
 
+            clause, binds = build_in_clause(matching_filing_types, 'ftype')
+            binds.update({'corp_num': corp_num, 'event_id': event_id})
             condition = f"""
                 JOIN FILING f ON (ft.FILING_TYP_CD = f.FILING_TYP_CD)
                 JOIN EVENT e ON (f.EVENT_ID = e.EVENT_ID)
                 WHERE e.CORP_NUM = :corp_num
                   AND e.EVENT_TYP_CD = 'FILE'
                   AND e.EVENT_ID < :event_id
-                  AND f.FILING_TYP_CD in ({stringify_list(matching_filing_types)})
+                  AND f.FILING_TYP_CD in ({clause})
                   and rownum = 1
                 order by f.EVENT_ID asc
             """
 
             querystring = cls.FILING_TYPE_QUERY + condition
-            cursor.execute(querystring, corp_num=corp_num, event_id=event_id)
+            cursor.execute(querystring, binds)
 
             results = cls._create_filing_type_objs(cursor=cursor)
             num_results = len(results)

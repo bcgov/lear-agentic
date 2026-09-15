@@ -68,8 +68,72 @@ def convert_to_pacific_time(thedate: str) -> str:
         raise err
 
 
+def build_in_clause(values: list, prefix: str):
+    """Build a parameterized SQL IN-list fragment and bind map for cx_Oracle.
+
+    Use this for untrusted / string-typed values. Do not interpolate those
+    values into SQL with stringify_list.
+
+    Returns:
+        (sql_fragment, binds) where sql_fragment is like ':pref_0,:pref_1'
+        and binds maps those names to the original values.
+    """
+    if not values:
+        raise ValueError('values must be a non-empty list for an IN clause')
+    if not prefix or not str(prefix).replace('_', '').isalnum():
+        raise ValueError('prefix must be a non-empty alphanumeric bind name stem')
+
+    binds = {}
+    placeholders = []
+    for index, value in enumerate(values):
+        key = f'{prefix}_{index}'
+        placeholders.append(f':{key}')
+        binds[key] = value
+    return ','.join(placeholders), binds
+
+
+def build_cooper_reset_filings_query(start_date: str, end_date: str,
+                                     identifiers: list = None,
+                                     filing_types: list = None):
+    """Build the cooper reset lookup SQL and bind map (VULN-002 / VULN-003).
+
+    Request-sourced identifiers / filing_types are bound, never stringified.
+    """
+    query_string = """
+            select event.event_id, event.corp_num, filing_typ_cd
+            from event
+            join filing on filing.event_id = event.event_id
+            left join filing_user on event.event_id = filing_user.event_id
+            where filing_user.user_id in ('COOPER', 'BCOMPS')
+            AND event.event_timestmp>=TO_DATE(:start_date, 'yyyy-mm-dd')
+            AND event.event_timestmp<=TO_DATE(:end_date, 'yyyy-mm-dd')
+        """
+    binds = {
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+
+    if identifiers:
+        clause, ident_binds = build_in_clause(identifiers, 'ident')
+        query_string += f' AND event.corp_num in ({clause})'
+        binds.update(ident_binds)
+
+    if filing_types:
+        clause, type_binds = build_in_clause(filing_types, 'ftype')
+        query_string += f' AND filing.filing_typ_cd in ({clause})'
+        binds.update(type_binds)
+
+    query_string += '  ORDER BY event.event_timestmp desc'
+    return query_string, binds
+
+
 def stringify_list(list_orig: list) -> str:
-    """Stringify the given list for sql query - used when inserting lists for reset query's."""
+    """Stringify a trusted numeric ID list for SQL IN clauses (legacy helper).
+
+    Not safe for request-sourced or string-typed values — use build_in_clause /
+    bind variables instead (VULN-002 / VULN-003). Residual: internal integer
+    event_id / addr_id lists may still call this helper.
+    """
     list_str = ''
     for item in list_orig:
         # remove any spaces or end brackets to avoid sql injection that could end the list and execute another command
@@ -80,7 +144,11 @@ def stringify_list(list_orig: list) -> str:
 
 
 def delete_from_table_by_event_ids(cursor, event_ids: list, table: str, column: str = 'start_event_id'):
-    """Delete rows with given event ids from given table."""
+    """Delete rows with given event ids from given table.
+
+    Residual (VULN-003): event_ids are treated as trusted integer IDs from
+    prior COLIN queries; still uses stringify_list rather than binds.
+    """
     try:
         # table is a value set by the code: not possible to be sql injected from a request
         cursor.execute(f"""
