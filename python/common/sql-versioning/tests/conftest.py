@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Common setup and fixtures for the pytest suite used by this service."""
+import os
 import time
 
 import pytest
@@ -20,7 +21,11 @@ from sqlalchemy.orm import sessionmaker
 
 from sql_versioning import Base
 
-POSTGRES_URL = 'postgresql://postgres:postgres@localhost:5433/test'
+POSTGRES_URL = os.environ.get(
+    'SQL_VERSIONING_TEST_DATABASE_URL',
+    # test-only default for local docker-compose (not a production secret)
+    'postgresql://postgres:test-only-local-postgres@localhost:5433/test',
+)
 
 
 @pytest.fixture(scope='session')

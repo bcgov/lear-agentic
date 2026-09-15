@@ -5,7 +5,7 @@ services:
     image: postgres:11
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${SQL_VERSIONING_TEST_POSTGRES_PASSWORD:-test-only-local-postgres}
       POSTGRES_DB: test
     ports:
       - "5433:5432"

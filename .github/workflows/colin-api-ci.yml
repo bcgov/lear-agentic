@@ -49,13 +49,15 @@ jobs:
 
   testing:
     needs: setup-job
+    # SECRET-007: ephemeral per-run password for the job-scoped Postgres service
+    # (not a repo secret; container is destroyed after the job).
     env:
       DATABASE_TEST_USERNAME: postgres
-      DATABASE_TEST_PASSWORD: postgres
+      DATABASE_TEST_PASSWORD: ${{ format('ci-ephemeral-{0}-{1}', github.run_id, github.run_attempt) }}
       DATABASE_TEST_NAME: postgres
       DATABASE_TEST_HOST: localhost
       DATABASE_HOST: localhost
-      DATABASE_PASSWORD: postgres
+      DATABASE_PASSWORD: ${{ format('ci-ephemeral-{0}-{1}', github.run_id, github.run_attempt) }}
       NATS_SERVERS: "nats://nats:4222"
       NATS_CLIENT_NAME: entity.legal_api
       NATS_CLUSTER_ID: test-cluster
@@ -75,7 +77,7 @@ jobs:
         image: postgres:12
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: ${{ format('ci-ephemeral-{0}-{1}', github.run_id, github.run_attempt) }}
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
