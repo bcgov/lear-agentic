@@ -1,25 +1,5 @@
-# Spec — Pin internal git dependencies (DEP-005)
+# Spec (merge-train stub)
 
-## Feature proposal
-GitHub issue **#10** — DEP-005: internal libraries sourced from `@main` without commit SHA.
+Signed slice artifacts for each remediation PR are archived under `docs/sdlc/PR-<n>/`.
 
-## Problem
-Modern components pull internal packages from GitHub `@main`, so every reinstall can silently change production code.
-
-## Outcome
-Git dependency URLs reference immutable commit SHAs for `bcgov/lear` and `bcgov/sbc-connect-common` packages.
-
-## Scope
-### In scope
-- Replace `@main` with commit SHAs across pyproject.toml files in this repository that use those hosts
-
-### Out of scope
-- Migrating to published package versions / path deps (follow-up modernization)
-
-## Journeys
-1. Reproducible installs — `features/dep-005-pin-git-main.feature`
-
-## Sign-off
-| Role | Name | Date |
-| --- | --- | --- |
-| Product / PM | local-agent | 2026-09-15 |
+Canonical `spec/spec.md`, `spec/plan.md`, and `spec/tasks.md` are intentionally identical across open RA PRs so sequential merges onto `main` do not add/add-conflict.

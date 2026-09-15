@@ -1,2 +1,3 @@
-# Tasks — DEP-005
-- [x] TASK-001 — Replace `@main` with SHAs — `@R-705.1`
+# Tasks (merge-train stub)
+
+See `docs/sdlc/PR-<n>/tasks.md` for the signed tasks for this slice.
