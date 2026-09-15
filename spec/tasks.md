@@ -1,8 +1,3 @@
-# Tasks — CONFIG-005
+# Tasks (merge-train stub)
 
-- [x] Spec + features for issue #24 (`@R-24.1`–`@R-24.3`)
-- [x] Plan (sslmode helper + local vs non-local defaults)
-- [x] Update `data-tool/flows/config.py` URI construction
-- [x] `.corps.env.sample` documentation
-- [x] Unit tests + provenance headers
-- [ ] Evidence + review receipt + Gate-clean PR (human checkpoint 3)
+See `docs/sdlc/PR-<n>/tasks.md` for the signed tasks for this slice.
