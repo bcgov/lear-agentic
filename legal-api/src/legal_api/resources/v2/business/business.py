@@ -113,11 +113,13 @@ def get_businesses(identifier: str):
     current_app.logger.info("account info request, for account: %s", q_account)
     if q_account and jwt.has_one_of_roles([SYSTEM_ROLE, ACCOUNT_IDENTITY]):
         account_response = AccountService.get_account_by_affiliated_identifier(identifier, flags)
-        current_app.logger.info("VALID account request, for accountId: %s, by: %s, jwt: %s, for org account: %s",
-                                q_account,
-                                g.jwt_oidc_token_info.get("preferred_username"),
-                                g.jwt_oidc_token_info,
-                                account_response)
+        # Correlation only — never log preferred_username, email, sub, roles, or the full
+        # g.jwt_oidc_token_info object at INFO (LOG-001 / CWE-532).
+        current_app.logger.info(
+            "VALID account request, for accountId: %s, business: %s",
+            q_account,
+            identifier,
+        )
         # A business can be affiliated in multiple accounts (in user account as well as in gov staff account's)
         # AccountService.get_account_by_affiliated_identifier will fetch all of it
         # check one of it has `q_account`
