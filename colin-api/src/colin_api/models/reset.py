@@ -19,7 +19,7 @@ from flask import current_app
 
 from colin_api.models.filing import Business, Filing, Office, Party, ShareObject
 from colin_api.resources.db import DB
-from colin_api.utils import stringify_list
+from colin_api.utils import build_cooper_reset_filings_query, stringify_list
 
 
 class Reset:
@@ -47,33 +47,16 @@ class Reset:
 
     def get_filings_for_reset(self):
         """Return event/filing info for all filings getting reset."""
-        # build base query string
-        query_string = """
-            select event.event_id, event.corp_num, filing_typ_cd
-            from event
-            join filing on filing.event_id = event.event_id
-            left join filing_user on event.event_id = filing_user.event_id
-            where filing_user.user_id in ('COOPER', 'BCOMPS')
-            AND event.event_timestmp>=TO_DATE(:start_date, 'yyyy-mm-dd')
-            AND event.event_timestmp<=TO_DATE(:end_date, 'yyyy-mm-dd')
-        """
-
-        if self.identifiers:
-            query_string += f' AND event.corp_num in ({stringify_list(self.identifiers)})'
-
-        if self.filing_types:
-            query_string += f' AND filing.filing_typ_cd in ({stringify_list(self.filing_types)})'
-
-        # order by most most recent
-        query_string += '  ORDER BY event.event_timestmp desc'
+        query_string, binds = build_cooper_reset_filings_query(
+            start_date=self.start_date,
+            end_date=self.end_date,
+            identifiers=self.identifiers,
+            filing_types=self.filing_types,
+        )
 
         try:
             cursor = DB.connection.cursor()
-            cursor.execute(
-                query_string,
-                start_date=self.start_date,
-                end_date=self.end_date,
-            )
+            cursor.execute(query_string, binds)
             reset_raw_info = cursor.fetchall()
             reset_list = []
             for row in reset_raw_info:
