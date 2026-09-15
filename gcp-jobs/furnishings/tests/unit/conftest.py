@@ -59,7 +59,7 @@ def _pytest_sftp_host_key() -> tuple[str, str]:
     return key.get_base64(), key.get_name()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def sftpconnection(sftpserver):
     """Return a session-wide SFTP connection with verified pytest-sftpserver host key."""
     host_key, host_key_algorithm = _pytest_sftp_host_key()

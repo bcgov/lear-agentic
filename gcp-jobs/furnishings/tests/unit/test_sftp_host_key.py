@@ -76,18 +76,17 @@ def test_uses_reject_policy_with_configured_key(app, monkeypatch):
     assert not any(isinstance(p, paramiko.AutoAddPolicy) for p in policies)
 
 
-def test_ephemeral_server_uses_packaged_host_key(app, sftpserver):
-    """@R-03.3 — harness uses pytest-sftpserver known key; never AutoAddPolicy."""
-    from pytest_sftpserver.consts import SERVER_KEY_PRIVATE
+def test_fixture_connection_uses_reject_policy(app, sftpconnection, monkeypatch):
+    """@R-03.3 — harness connection is verified (RejectPolicy); never AutoAddPolicy."""
+    policies = []
+    real_set = paramiko.SSHClient.set_missing_host_key_policy
 
-    key = paramiko.RSAKey.from_private_key_file(SERVER_KEY_PRIVATE)
-    conn = SftpConnection(
-        username="user",
-        password="pwd",
-        host=sftpserver.host,
-        port=sftpserver.port,
-        host_key=key.get_base64(),
-        host_key_algorithm=key.get_name(),
-    )
-    with app.app_context(), conn as sftp:
+    def capture(self, policy):
+        policies.append(policy)
+        return real_set(self, policy)
+
+    monkeypatch.setattr(paramiko.SSHClient, "set_missing_host_key_policy", capture)
+    with app.app_context(), sftpconnection as sftp:
         assert sftp is not None
+    assert policies
+    assert all(isinstance(p, paramiko.RejectPolicy) for p in policies)

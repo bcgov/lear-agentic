@@ -95,7 +95,10 @@ class SftpConnection:
         else:
             raise ValueError(f"Unsupported SFTP host_key_algorithm: {self.host_key_algorithm}")
 
-        self.ssh_connection.get_host_keys().add(self.host, key_name, key)
+        host_keys = self.ssh_connection.get_host_keys()
+        host_keys.add(self.host, key_name, key)
+        # Paramiko may look up "host" or "[host]:port" depending on connect path.
+        host_keys.add(f"[{self.host}]:{self.port}", key_name, key)
 
     def __enter__(self) -> Callable:
         """Connect to the SFTP server.
@@ -118,13 +121,30 @@ class SftpConnection:
                 else:
                     private_key = f__from_private_key(io.StringIO(self.private_key))
 
-                self.ssh_connection.connect(hostname=self.host, port=self.port,
-                                            username=self.username, pkey=private_key,
-                                            key_filename=None, timeout=None,
-                                            allow_agent=False, look_for_keys=False)
+                self.ssh_connection.connect(
+                    hostname=self.host,
+                    port=self.port,
+                    username=self.username,
+                    pkey=private_key,
+                    key_filename=None,
+                    timeout=30,
+                    banner_timeout=30,
+                    auth_timeout=30,
+                    allow_agent=False,
+                    look_for_keys=False,
+                )
             else:
-                self.ssh_connection.connect(hostname=self.host, port=self.port,
-                                            username=self.username, password=self.password)
+                self.ssh_connection.connect(
+                    hostname=self.host,
+                    port=self.port,
+                    username=self.username,
+                    password=self.password,
+                    timeout=30,
+                    banner_timeout=30,
+                    auth_timeout=30,
+                    allow_agent=False,
+                    look_for_keys=False,
+                )
 
             self.sftp_handler = paramiko.SFTPClient.from_transport(self.ssh_connection.get_transport())
 
