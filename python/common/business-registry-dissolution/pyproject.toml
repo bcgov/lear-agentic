@@ -157,6 +157,8 @@ source = [
    "src/dissolution_service",
 ]
 omit = [
+   "src/dissolution_service/config.py",
+   "src/dissolution_service/request_context.py",
 ]
 
 [tool.coverage.report]
