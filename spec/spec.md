@@ -1,54 +1,58 @@
-# Spec — {{SERVICE_NAME}}
+# Spec — Pin colin-api business-schemas (DEP-004)
 
 > Technology-free. Describe *what* and *why*, not frameworks or cloud products.
 
 ## Feature proposal
 
-The **Feature issue** is the proposal — link the GitHub issue (e.g. `#123`) and summarize the agreed outcome this spec implements.
+GitHub issue **#9** — `[DEP-004] DEP-004` (High). Unpinned git dependency for registry schemas.
 
 ## Problem
 
-{{Who is stuck, and what pain do they have today?}}
+COLIN API installs shared registry schemas from a git repository URL with no branch, tag, or commit. Any new commit on that repository’s default branch is adopted on the next install, so builds are not reproducible and supply-chain changes land without a deliberate bump.
 
 ## Outcome
 
-{{Measurable outcome for the user / business.}}
+The registry schemas dependency is pinned to an explicit commit identity. Reinstalls resolve the same revision until a maintainer intentionally updates the pin.
 
 ## Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| {{…}} | {{…}} |
+| Platform engineer | Reproducible COLIN API installs |
+| Security reviewer | No silent floating of third-party (internal) schema code |
+| Maintainer | Clear, deliberate pin bumps when schemas change |
 
 ## Scope
 
 ### In scope (this release)
 
-- {{…}}
+- Close DEP-004 for `colin-api` requirements declaration of registry schemas
+- Pin to a specific commit of the schemas repository default branch tip at remediation time
+- Unit assertion that the pin format remains a full commit SHA
 
 ### Out of scope
 
-- {{…}}
+- Publishing registry schemas to an artifact index / replacing git install with a versioned package
+- Pinning other colin-api dependencies (separate DEP findings)
+- Changing schema content itself
 
 ## Journeys
 
-1. {{Happy path name}} — see `features/{{name}}.feature`
-2. {{…}}
+1. Requirements pin is commit-SHA based — see `features/dep-004-pin-business-schemas.feature`
 
 ## Non-functional requirements
 
-- Accessibility: WCAG 2.1 AA
-- Privacy: {{classification + PIA status}}
-- Availability: {{…}}
+- Reproducible installs for the schemas dependency
+- Residual: pin age — maintainers must bump SHA when intentional schema updates are needed
 
 ## Open questions
 
-- [ ] {{…}}
+- [x] Pin form: git URL `@<sha>#egg=registry_schemas` (matches existing install style)
 
 ## Sign-off (checkpoint 1)
 
 | Role | Name | Date |
 | --- | --- | --- |
-| Product / PM | | |
-| BA | | |
-| QA (acceptance ownership) | | |
+| Product / PM | local-agent | 2026-09-15 |
+| BA | local-agent | 2026-09-15 |
+| QA (acceptance ownership) | local-agent | 2026-09-15 |

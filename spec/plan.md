@@ -1,44 +1,40 @@
-# Plan — {{SERVICE_NAME}}
+# Plan — DEP-004 pin business-schemas
 
-> Architecture and delivery approach. Technology belongs here (not in `spec.md`).
+> Architecture and delivery approach for issue #9.
 
 ## Summary
 
-{{How we will realize the spec.}}
+Replace the unpinned `git+https://github.com/bcgov/business-schemas.git#egg=registry_schemas` line in `colin-api/requirements.txt` with the same URL pinned at `@<commit-sha>`, using the default-branch tip SHA observed via `git ls-remote … HEAD` at remediation time. Add a unit test that enforces the pin format.
 
 ## Architecture
 
 ```text
-{{e.g. Browser → OpenShift Route → Service → API → DB}}
+colin-api/requirements.txt
+  → git+https://github.com/bcgov/business-schemas.git@<40-char-sha>#egg=registry_schemas
+pip install -r requirements.txt
+  → resolves that commit only (until pin is bumped)
 ```
 
-## Key decisions (ADRs may expand)
+## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| UI | B.C. Design System React | Constitution P2 |
-| Hosting | OpenShift PaaS | Constitution P4 |
-| Auth | {{Entra / …}} | {{…}} |
+| Pin form | `@<full sha>` on existing git+ URL | Minimal change; pip-compatible; closes floating HEAD |
+| SHA source | `git ls-remote … HEAD` at fix time | Matches “current default tip” without inventing a tag |
+| Package index | Keep git egg install | Out of scope to republish as versioned artifact |
 
 ## Security & privacy
 
-- Classification: {{…}}
-- PIA status: {{not started / in progress / complete — link}}
-- Secrets: {{…}}
+- Classification: supply-chain / reproducible build (CWE-1357)
+- Residual: schemas still come from git over HTTPS; pin must be refreshed deliberately; historical floating installs already happened
 
 ## Test approach
 
-- Default integrity tier: **CODEOWNERS on acceptance criteria**
-- Features under `spec/features/` owned by: {{QA lead / path}}
-
-## Rollout
-
-- Environments: {{dev / test / prod}}
-- Migration / cutover: {{n/a for greenfield}}
+- Unit: parse `colin-api/requirements.txt`; assert registry_schemas line has `@` + 40 hex chars before `#egg=`
+- Acceptance: Gherkin `@R-704.1`, `@R-704.2` in `spec/features/dep-004-pin-business-schemas.feature`
 
 ## Approval (checkpoint 2)
 
 | Role | Name | Date |
 | --- | --- | --- |
-| Architect / tech lead | | |
-| Security (if required) | | |
+| Architect / tech lead | local-agent | 2026-09-15 |
