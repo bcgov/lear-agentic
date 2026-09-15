@@ -15,7 +15,9 @@
 
 These will get initialized by the application.
 """
-import cx_Oracle
+# Thin-mode oracledb is the supported successor to deprecated cx_Oracle.
+# Alias keeps SessionPool / DatabaseError call sites stable (DEP-010).
+import oracledb as cx_Oracle
 from flask import _app_ctx_stack, current_app
 
 
@@ -58,6 +60,7 @@ class OracleDB:
             cursor = conn.cursor()
             cursor.execute("alter session set TIME_ZONE = 'America/Vancouver'")
 
+        # encoding/nencoding removed in oracledb (UTF-8 is always used).
         return cx_Oracle.SessionPool(  # pylint:disable=c-extension-no-member
             user=current_app.config.get('ORACLE_USER'),
             password=current_app.config.get('ORACLE_PASSWORD'),
@@ -73,9 +76,7 @@ class OracleDB:
             getmode=cx_Oracle.SPOOL_ATTRVAL_NOWAIT,  # pylint:disable=c-extension-no-member
             waitTimeout=1500,
             timeout=3600,
-            sessionCallback=init_session,
-            encoding='UTF-8',
-            nencoding='UTF-8')
+            sessionCallback=init_session)
 
     @property
     def connection(self):  # pylint: disable=inconsistent-return-statements

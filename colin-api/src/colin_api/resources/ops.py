@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Endpoints to check and manage the health of the service."""
-import cx_Oracle
+import oracledb as cx_Oracle
 from flask import current_app
 from flask_restx import Namespace, Resource
 

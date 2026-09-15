@@ -1,4 +1,4 @@
-cx_Oracle
+oracledb
 datedelta
 gunicorn
 Flask
