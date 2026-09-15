@@ -8,6 +8,9 @@ readme = "README.md"
 
 
 [tool.poetry.dependencies]
+business-model = { path = "../../python/common/business-registry-model", develop = true }
+business-registry-account = { path = "../../python/common/business-registry-account", develop = true }
+business-registry-common = { path = "../../python/common/business-registry-common", develop = true }
 python = ">=3.13,<3.14"
 alembic = "1.15.2"
 aniso8601 = "10.0.0"
@@ -84,9 +87,6 @@ legacy-cgi = "^2.6.3"
 # Git-based dependencies
 gcp-queue = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/gcp-queue", branch = "main" }
 structured-logging = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/structured-logging", branch = "main" }
-business-model = { git = "https://github.com/bcgov/lear.git", subdirectory = "python/common/business-registry-model" }
-business-registry-account = { git = "https://github.com/bcgov/lear.git", subdirectory = "python/common/business-registry-account" }
-business-registry-common = { git = "https://github.com/bcgov/lear.git", subdirectory = "python/common/business-registry-common" }
 cloud-sql-connector = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/cloud-sql-connector", branch = "main" }
 
 [tool.poetry.group.test.dependencies]

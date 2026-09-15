@@ -7,6 +7,9 @@ readme = "README.md"
 packages = [{include = "involuntary_dissolutions", from = "src"}]
 
 [tool.poetry.dependencies]
+business-registry-common = { path = "../../python/common/business-registry-common", develop = true }
+business-model = { path = "../../python/common/business-registry-model", develop = true }
+business-registry-dissolution = { path = "../../python/common/business-registry-dissolution", develop = true }
 python = "~3.13.0"
 Flask = "^3.1.0"
 requests = "^2.32.3"
@@ -17,9 +20,6 @@ flask-migrate = "^4.1.0"
 croniter = "^6.0.0"
 launchdarkly-server-sdk = "^9.10.0"
 gcp-queue = {git = "https://github.com/bcgov/sbc-connect-common.git", rev = "main", subdirectory = "python/gcp-queue"}
-business-registry-common = {git = "https://github.com/bcgov/lear.git", subdirectory = "python/common/business-registry-common"}
-business-model = {git = "https://github.com/bcgov/lear.git", subdirectory = "python/common/business-registry-model"}
-business-registry-dissolution = {git = "https://github.com/bcgov/lear.git", subdirectory = "python/common/business-registry-dissolution"}
 structured-logging = {git = "https://github.com/bcgov/sbc-connect-common.git", rev = "main", subdirectory = "python/structured-logging"}
 cloud-sql-connector = {git = "https://github.com/bcgov/sbc-connect-common.git", rev = "main", subdirectory = "python/cloud-sql-connector"}
 

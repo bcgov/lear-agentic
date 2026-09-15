@@ -9,13 +9,18 @@ dependencies = [
   "flask (>=3.1.0,<4.0.0)",
   "python-dotenv (>=1.1.0,<2.0.0)",
   # BCReg deps
-  "business-model @ git+https://github.com/bcgov/lear.git@f99be5a71fcca9c99b66015330bfed672616c434#subdirectory=python/common/business-registry-model",
-  "business-registry-account @ git+https://github.com/bcgov/lear.git@f99be5a71fcca9c99b66015330bfed672616c434#subdirectory=python/common/business-registry-account",
-  "business-registry-common @ git+https://github.com/bcgov/lear.git@f99be5a71fcca9c99b66015330bfed672616c434#subdirectory=python/common/business-registry-common",
+  "business-model",
+  "business-registry-account",
+  "business-registry-common",
 ]
 
 [tool.poetry]
 packages = [{include = "dissolution_service", from = "src"}]
+
+[tool.poetry.dependencies]
+business-model = { path = "../business-registry-model", develop = true }
+business-registry-account = { path = "../business-registry-account", develop = true }
+business-registry-common = { path = "../business-registry-common", develop = true }
 
 [tool.poetry.group.test.dependencies]
 datedelta = "^1.4"

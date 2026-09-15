@@ -8,6 +8,10 @@ readme = "README.md"
 
 
 [tool.poetry.dependencies]
+business-model = { path = "../../python/common/business-registry-model", develop = true }
+business-registry-account = { path = "../../python/common/business-registry-account", develop = true }
+business-registry-common = { path = "../../python/common/business-registry-common", develop = true }
+business-registry-digital-credentials = { path = "../../python/common/business-registry-digital-credentials", develop = true }
 python = ">=3.13,<3.14"
 gunicorn = "23.0.0"
 launchdarkly-server-sdk = "9.15.0"
@@ -19,10 +23,6 @@ grpcio-status = ">=1.78.2"
 # Git-based dependencies
 gcp-queue = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/gcp-queue", branch = "main" }
 structured-logging = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/structured-logging", branch = "main" }
-business-model = {git = "https://github.com/bcgov/lear.git", subdirectory = "python/common/business-registry-model", branch = "main"}
-business-registry-account = { git = "https://github.com/bcgov/lear.git", subdirectory = "python/common/business-registry-account", branch = "main" }
-business-registry-common = { git = "https://github.com/bcgov/lear.git", subdirectory = "python/common/business-registry-common", branch = "main" }
-business-registry-digital-credentials = {git = "https://github.com/bcgov/lear.git", subdirectory = "python/common/business-registry-digital-credentials", branch = "main"}
 cloud-sql-connector = { git = "https://github.com/bcgov/sbc-connect-common.git", subdirectory = "python/cloud-sql-connector", branch = "main" }
 
 

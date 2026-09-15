@@ -12,7 +12,7 @@ dependencies = [
     "flask (>=3.1.0,<4.0.0)",
     "python-dotenv (>=1.1.0,<2.0.0)",
     "structured-logging @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/structured-logging",
-    "business-registry-account @ git+https://github.com/bcgov/lear.git@f99be5a71fcca9c99b66015330bfed672616c434#subdirectory=python/common/business-registry-account",
+    "business-registry-account",
 ]
 
 
@@ -163,3 +163,6 @@ exclude_lines = [
    "if 0:",
    'if __name__ == "__main__":',
 ]
+
+[tool.poetry.dependencies]
+business-registry-account = { path = "../../python/common/business-registry-account", develop = true }
