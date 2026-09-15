@@ -114,9 +114,11 @@ class User(db.Model, Versioned):
                 idp_userid=token['idp_userid'],
                 login_source=token['loginSource']
             )
-            current_app.logger.debug(f'Creating user from JWT:{token}; User:{user}')
+            # Do not log token dict or User columns — identity PII (LOG-002 / CWE-532).
+            current_app.logger.debug('Creating user from JWT token (present)')
             db.session.add(user)
             db.session.commit()
+            current_app.logger.debug('Created user id=%s from JWT token', user.id)
             return user
         return None
 
@@ -126,9 +128,10 @@ class User(db.Model, Versioned):
         # GET existing or CREATE new user based on the JWT info
         try:
             user = User.find_by_jwt_token(jwt_oidc_token)
-            current_app.logger.debug(f'finding user: {jwt_oidc_token}')
+            # Presence only — never log jwt_oidc_token (LOG-002 / CWE-532).
+            current_app.logger.debug('Finding user by JWT token (present)')
             if not user:
-                current_app.logger.debug(f'didnt find user, attempting to create new user:{jwt_oidc_token}')
+                current_app.logger.debug('User not found for JWT token; attempting create')
                 user = User.create_from_jwt_token(jwt_oidc_token)
 
             return user
