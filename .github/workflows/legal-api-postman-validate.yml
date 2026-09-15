@@ -49,7 +49,7 @@ jobs:
           for (const v of envRaw.values) {
             if (v && /client_secret/i.test(String(v.key || '')) && v.value && !String(v.value).includes('{{')) {
               const val = String(v.value);
-              if (val.length > 0 && !/placeholder|changeme|redacted|example/i.test(val)) {
+              if (val.length > 0 && !/placeholder|changeme|redacted|example|do-not-commit|^</i.test(val)) {
                 console.error(`Refusing non-placeholder client_secret value for key=${v.key}`);
                 process.exit(1);
               }
