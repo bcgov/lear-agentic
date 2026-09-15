@@ -37,6 +37,22 @@ CONFIGURATION = {
 }
 
 
+def _env_flag(name: str, default: bool = False) -> bool:
+    """Parse a boolean environment flag (case-insensitive)."""
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == '':
+        return default
+    return raw.strip().lower() in ('true', '1', 'yes', 'on')
+
+
+def _oracle_require_ssl_default() -> bool:
+    """Fail closed for non-local Flask envs (CONFIG-006)."""
+    flask_env = (os.getenv('FLASK_ENV') or '').strip().lower()
+    if flask_env in ('development', 'testing', 'dev'):
+        return False
+    return True
+
+
 def get_named_config(config_name: str = 'production'):
     """Return the configuration object based on the name.
 
@@ -71,6 +87,19 @@ class _Config:  # pylint: disable=too-few-public-methods
     ORACLE_HOST = os.getenv('ORACLE_HOST', '')
     ORACLE_PORT = int(os.getenv('ORACLE_PORT', '1521'))
     ORACLE_BNI_DB_LINK = os.getenv('ORACLE_BNI_DB_LINK', '')
+
+    # CONFIG-006 — application-layer TLS hooks for CPRD.
+    # ORACLE_SSL=true builds a TCPS DESCRIPTION DSN. Wallet files (cwallet.sso /
+    # ewallet.p12) remain ops-owned; set ORACLE_WALLET_LOCATION (exported as TNS_ADMIN).
+    # ORACLE_SSL_SERVER_DN optionally pins SSL_SERVER_CERT_DN in the DESCRIPTION.
+    # ORACLE_NET_ENCRYPTION documents the intended SQLNET.ENCRYPTION_CLIENT level
+    # (e.g. REQUIRED); enforcing native network encryption still needs sqlnet.ora.
+    # ORACLE_REQUIRE_SSL defaults true for non-local FLASK_ENV and refuses cleartext pools.
+    ORACLE_SSL = _env_flag('ORACLE_SSL', False)
+    ORACLE_REQUIRE_SSL = _env_flag('ORACLE_REQUIRE_SSL', _oracle_require_ssl_default())
+    ORACLE_WALLET_LOCATION = os.getenv('ORACLE_WALLET_LOCATION', '')
+    ORACLE_SSL_SERVER_DN = os.getenv('ORACLE_SSL_SERVER_DN', '')
+    ORACLE_NET_ENCRYPTION = os.getenv('ORACLE_NET_ENCRYPTION', '')
 
     # JWT_OIDC Settings
     JWT_OIDC_WELL_KNOWN_CONFIG = os.getenv('JWT_OIDC_WELL_KNOWN_CONFIG')
@@ -108,6 +137,8 @@ class DevConfig(_Config):  # pylint: disable=too-few-public-methods
 
     TESTING = False
     DEBUG = True
+    # Local Instant Client sessions often lack wallets; do not fail closed here.
+    ORACLE_REQUIRE_SSL = _env_flag('ORACLE_REQUIRE_SSL', False)
 
 
 class TestConfig(_Config):  # pylint: disable=too-few-public-methods
@@ -115,6 +146,8 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
 
     DEBUG = True
     TESTING = True
+    ORACLE_REQUIRE_SSL = False
+    ORACLE_SSL = False
 
     # TEST ORACLE
     ORACLE_USER = os.getenv('TEST_ORACLE_USER', '')
@@ -136,3 +169,5 @@ class ProdConfig(_Config):  # pylint: disable=too-few-public-methods
 
     TESTING = False
     DEBUG = False
+    # Fail closed unless explicitly opted out (local/break-glass).
+    ORACLE_REQUIRE_SSL = _env_flag('ORACLE_REQUIRE_SSL', True)

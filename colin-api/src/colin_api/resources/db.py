@@ -15,8 +15,32 @@
 
 These will get initialized by the application.
 """
+import os
+
 import cx_Oracle
 from flask import _app_ctx_stack, current_app
+
+
+def build_oracle_dsn(host, port, db_name, *, ssl_enabled=False, ssl_server_dn=None):
+    """Build a cleartext Easy Connect or TCPS DESCRIPTION DSN (CONFIG-006).
+
+    Full mutual TLS still requires ops-provided wallet files under
+    ``ORACLE_WALLET_LOCATION`` / ``TNS_ADMIN``. This helper encodes the
+    application-layer protocol choice so cleartext is not the only option.
+    """
+    if not ssl_enabled:
+        return '{0}:{1}/{2}'.format(host, port, db_name)  # pylint: disable=consider-using-f-string
+
+    security = ''
+    if ssl_server_dn:
+        security = '(SECURITY=(SSL_SERVER_CERT_DN="{0}"))'.format(ssl_server_dn)
+
+    return (
+        '(DESCRIPTION='
+        '(ADDRESS=(PROTOCOL=TCPS)(HOST={host})(PORT={port}))'
+        '(CONNECT_DATA=(SERVICE_NAME={service}))'
+        '{security})'
+    ).format(host=host, port=port, service=db_name, security=security)
 
 
 class OracleDB:
@@ -54,17 +78,42 @@ class OracleDB:
         # setting threaded =True wraps the underlying calls in a Mutex
         # so we don't have to that here
 
+        ssl_enabled = bool(current_app.config.get('ORACLE_SSL'))
+        require_ssl = bool(current_app.config.get('ORACLE_REQUIRE_SSL'))
+        if require_ssl and not ssl_enabled:
+            raise RuntimeError(
+                'ORACLE_REQUIRE_SSL is enabled but ORACLE_SSL is false. '
+                'Set ORACLE_SSL=true (TCPS DSN) and provide wallet files via '
+                'ORACLE_WALLET_LOCATION / TNS_ADMIN, or set ORACLE_REQUIRE_SSL=false '
+                'for an approved local-only cleartext session.'
+            )
+
+        wallet_location = (current_app.config.get('ORACLE_WALLET_LOCATION') or '').strip()
+        if ssl_enabled and wallet_location:
+            # Instant Client / SQL*Net reads cwallet.sso / ewallet.p12 from TNS_ADMIN.
+            os.environ['TNS_ADMIN'] = wallet_location
+
+        # Optional native-network-encryption hint for ops sqlnet.ora (informational in-app).
+        # When set to REQUIRED, document that sqlnet.ora must also set
+        # SQLNET.ENCRYPTION_CLIENT=REQUIRED (wallet/listener still owned by ops).
+        _ = (current_app.config.get('ORACLE_NET_ENCRYPTION') or '').strip().upper()
+
         def init_session(conn, *args):  # pylint: disable=unused-argument; Extra var being passed with call
             cursor = conn.cursor()
             cursor.execute("alter session set TIME_ZONE = 'America/Vancouver'")
 
+        dsn = build_oracle_dsn(
+            current_app.config.get('ORACLE_HOST'),
+            current_app.config.get('ORACLE_PORT'),
+            current_app.config.get('ORACLE_DB_NAME'),
+            ssl_enabled=ssl_enabled,
+            ssl_server_dn=(current_app.config.get('ORACLE_SSL_SERVER_DN') or None),
+        )
+
         return cx_Oracle.SessionPool(  # pylint:disable=c-extension-no-member
             user=current_app.config.get('ORACLE_USER'),
             password=current_app.config.get('ORACLE_PASSWORD'),
-            dsn='{0}:{1}/{2}'.format(  # pylint:disable=consider-using-f-string
-                current_app.config.get('ORACLE_HOST'),
-                current_app.config.get('ORACLE_PORT'),
-                current_app.config.get('ORACLE_DB_NAME')),
+            dsn=dsn,
             min=1,
             max=10,
             increment=1,
