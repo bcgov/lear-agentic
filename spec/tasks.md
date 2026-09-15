@@ -1,8 +1,3 @@
-# Tasks — CONFIG-003
+# Tasks (merge-train stub)
 
-- [x] Spec + features for issue #2
-- [x] Plan (RejectPolicy + host_key config)
-- [ ] Implement `SftpConnection` host-key verification
-- [ ] Wire BCLaws / BCMail config + callers
-- [ ] Unit tests + provenance
-- [ ] Evidence + review receipt + Gate-clean PR
+See `docs/sdlc/PR-<n>/tasks.md` for the signed tasks for this slice.
