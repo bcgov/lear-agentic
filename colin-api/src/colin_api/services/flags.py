@@ -64,9 +64,12 @@ class Flags():  # pylint: disable=too-few-public-methods
         self.app = app
         self.sdk_key = app.config.get('LD_SDK_KEY')
 
-        if self.sdk_key or app.env != 'production':
+        # Flask 2.3+ removed app.env; use config ENV (set on Dev/Test/ProdConfig).
+        env = app.config.get('ENV', 'production')
 
-            if app.env == 'production':
+        if self.sdk_key or env != 'production':
+
+            if env == 'production':
                 config = Config(sdk_key=self.sdk_key)
             else:
                 factory = FileDataSource.factory(paths=['flags.json'],

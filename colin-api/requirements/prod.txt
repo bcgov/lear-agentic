@@ -2,7 +2,6 @@ oracledb
 datedelta
 gunicorn
 Flask
-Flask-Script
 Flask-Moment
 Flask-RESTX
 flask-jwt-oidc>=0.1.5

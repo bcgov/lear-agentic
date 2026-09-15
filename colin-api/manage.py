@@ -16,28 +16,26 @@
 """
 import logging
 
-from flask import url_for
-from flask_script import Manager  # class for handling a set of commands
+import click
 
 from colin_api import create_app
 
 APP = create_app()
-MANAGER = Manager(APP)
 
 
+@click.group()
+def cli():
+    """COLIN API management commands (replaces Flask-Script Manager)."""
 
-@MANAGER.command
+
+@cli.command('list_routes')
 def list_routes():
+    """Print registered URL rules."""
     output = []
+    # Flask 2.3+ requires SERVER_NAME for url_for outside a request; list paths from the map.
     for rule in APP.url_map.iter_rules():
-
-        options = {}
-        for arg in rule.arguments:
-            options[arg] = "[{0}]".format(arg)
-
-        methods = ','.join(rule.methods)
-        url = url_for(rule.endpoint, **options)
-        line = ("{:50s} {:20s} {}".format(rule.endpoint, methods, url))
+        methods = ','.join(sorted(rule.methods or []))
+        line = ('{:50s} {:20s} {}'.format(rule.endpoint, methods, rule.rule))
         output.append(line)
 
     for line in sorted(output):
@@ -46,4 +44,4 @@ def list_routes():
 
 if __name__ == '__main__':
     logging.log(logging.INFO, 'Running the Manager')
-    MANAGER.run()
+    cli()

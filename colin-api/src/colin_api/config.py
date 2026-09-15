@@ -101,6 +101,8 @@ class _Config:  # pylint: disable=too-few-public-methods
 
     TESTING = False
     DEBUG = False
+    # Flask 2.3+ no longer sets app.env from FLASK_ENV; keep ENV in config.
+    ENV = 'production'
 
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods
@@ -108,6 +110,7 @@ class DevConfig(_Config):  # pylint: disable=too-few-public-methods
 
     TESTING = False
     DEBUG = True
+    ENV = 'development'
 
 
 class TestConfig(_Config):  # pylint: disable=too-few-public-methods
@@ -115,6 +118,7 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
 
     DEBUG = True
     TESTING = True
+    ENV = 'testing'
 
     # TEST ORACLE
     ORACLE_USER = os.getenv('TEST_ORACLE_USER', '')

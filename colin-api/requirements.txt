@@ -1,8 +1,6 @@
-
 Flask-Moment==0.11.0
-Flask-Script==2.0.6
-Flask==1.1.2
-Jinja2==2.11.3
+Flask==2.3.3
+Jinja2==3.1.4
 MarkupSafe==1.1.1
 Werkzeug==1.0.1
 aniso8601==9.0.1
@@ -26,9 +24,10 @@ pyrsistent==0.17.3
 python-dotenv==0.17.1
 python-jose==3.4.0
 pytz==2021.1
-requests==2.25.1
+requests==2.32.5
 rsa==4.7.2
 SQLAlchemy==1.4.44
 six==1.15.0
-urllib3==1.26.11
-git+https://github.com/bcgov/business-schemas.git#egg=registry_schemas
+urllib3==2.8.0
+cx-Oracle==8.1.0
+git+https://github.com/bcgov/business-schemas.git@cf41a551b08cb51afd3e88bec0eab155dc856b24#egg=registry_schemas
