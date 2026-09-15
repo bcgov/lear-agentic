@@ -29,9 +29,8 @@ def test_verify_host_requires_host_key(app):
         verify_host=True,
         host_key=None,
     )
-    with app.app_context(), pytest.raises(ValueError, match="host_key is required"):
-        with conn:
-            pass
+    with app.app_context(), pytest.raises(ValueError, match="host_key is required"), conn:
+        pass
 
 
 def test_verify_host_uses_reject_policy(app, monkeypatch):
@@ -57,15 +56,8 @@ def test_verify_host_uses_reject_policy(app, monkeypatch):
 
     monkeypatch.setattr(paramiko, "SSHClient", FakeClient)
 
-    # Minimal valid RSA key blob (base64 of empty-ish will fail decode) — use a real tiny key.
     # Generate via paramiko RSAKey.generate for the unit test.
     key = paramiko.RSAKey.generate(1024)
-    from io import BytesIO
-    from base64 import encodebytes
-
-    bio = BytesIO()
-    # paramiko expects the raw key data as used by RSAKey(data=...)
-    # Use get_base64() which is the key body without headers.
     host_key_b64 = key.get_base64()
 
     conn = SftpConnection(
@@ -77,10 +69,12 @@ def test_verify_host_uses_reject_policy(app, monkeypatch):
         host_key=host_key_b64,
         host_key_algorithm="ssh-rsa",
     )
-    with app.app_context():
-        with pytest.raises(RuntimeError, match="stop-before-transport"):
-            with conn:
-                pass
+    with (
+        app.app_context(),
+        pytest.raises(RuntimeError, match="stop-before-transport"),
+        conn,
+    ):
+        pass
 
     assert len(policies) == 1
     assert isinstance(policies[0], paramiko.RejectPolicy)
@@ -109,10 +103,12 @@ def test_verify_host_false_allows_auto_add(app, monkeypatch):
         port=22,
         verify_host=False,
     )
-    with app.app_context():
-        with pytest.raises(RuntimeError, match="stop-before-transport"):
-            with conn:
-                pass
+    with (
+        app.app_context(),
+        pytest.raises(RuntimeError, match="stop-before-transport"),
+        conn,
+    ):
+        pass
 
     assert len(policies) == 1
     assert isinstance(policies[0], paramiko.AutoAddPolicy)
