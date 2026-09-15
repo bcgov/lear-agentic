@@ -14,11 +14,11 @@
 """File processing rules and actions for the registration of a business."""
 import json
 import uuid
-import defusedxml.ElementTree as Et
 from contextlib import suppress
 from datetime import UTC
 from http import HTTPStatus
 
+import defusedxml.ElementTree as Et
 import requests
 from flask import current_app
 from simple_cloudevent import SimpleCloudEvent, to_queue_message

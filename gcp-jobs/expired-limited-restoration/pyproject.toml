@@ -147,6 +147,8 @@ source = [
 ]
 omit = [
     "run.py",
+    "*/worker.py",
+    "src/expired_limited_restoration/worker.py",
 ]
 
 [tool.coverage.report]

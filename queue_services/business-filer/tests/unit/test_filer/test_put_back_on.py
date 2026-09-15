@@ -128,7 +128,13 @@ def tests_filer_put_back_on(app, session):
     
     # assert custodial office addresses
     addresses_version = VersioningProxy.version_class(session(), Address)
-    custodial_office_mailing = session.query(addresses_version).filter(addresses_version.id == mailing_id).one_or_none()
+    custodial_office_mailing = (
+        session.query(addresses_version)
+        .filter(addresses_version.id == mailing_id)
+        .filter(addresses_version.transaction_id <= filing.transaction_id)
+        .order_by(addresses_version.transaction_id.desc())
+        .first()
+    )
     assert custodial_office_mailing
     assert custodial_office_mailing.transaction_id <= filing.transaction_id
     

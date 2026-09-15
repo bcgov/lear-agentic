@@ -19,7 +19,10 @@ Echo only Origins listed in CORS_ORIGINS (comma-separated env / config).
 from __future__ import annotations
 
 import os
-from collections.abc import Iterable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 def parse_cors_origins(raw: str | Iterable[str] | None) -> set[str]:

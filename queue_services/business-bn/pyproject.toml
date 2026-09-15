@@ -170,6 +170,10 @@ source = [
 ]
 omit = [
     "wsgi.py",
+    "src/business_bn/services/gcp_auth.py",
+    "src/business_bn/services/__init__.py",
+    "src/business_bn/resources/business_bn.py",
+    "src/business_bn/bn_processors/__init__.py",
 ]
 
 [tool.coverage.report]

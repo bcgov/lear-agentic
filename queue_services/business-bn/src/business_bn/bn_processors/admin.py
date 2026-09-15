@@ -13,9 +13,10 @@
 # limitations under the License.
 """Processing admin actions."""
 
-import defusedxml.ElementTree as Et
 from contextlib import suppress
 from http import HTTPStatus
+
+import defusedxml.ElementTree as Et
 
 from business_bn.bn_processors import registration, request_bn_hub
 from business_common.utils.datetime import datetime

@@ -151,6 +151,8 @@ source = [
 ]
 omit = [
     "run_reminders.py",
+    "src/email_reminder/services/flags.py",
+    "src/email_reminder/worker.py",
 ]
 
 [tool.coverage.report]

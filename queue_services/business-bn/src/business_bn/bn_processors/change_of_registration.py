@@ -13,9 +13,10 @@
 # limitations under the License.
 """File processing rules and actions for the change of registration of a business."""
 
-import defusedxml.ElementTree as Et
 from contextlib import suppress
 from http import HTTPStatus
+
+import defusedxml.ElementTree as Et
 
 import dpath.util
 from flask import current_app

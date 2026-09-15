@@ -114,10 +114,9 @@ def test_get_jurisdictions(flask_app, test_name, mock_status, mock_return, expec
     mock_response = MagicMock()
     mock_response.status_code = mock_status
     mock_response.content = mock_return
-    with flask_app.app_context():
-        with patch.object(requests, "get", return_value=mock_response):
-            jurisdictions = MrasService.get_jurisdictions("BC1234567")
-            assert jurisdictions == expected
+    with flask_app.app_context(), patch.object(requests, "get", return_value=mock_response):
+        jurisdictions = MrasService.get_jurisdictions("BC1234567")
+        assert jurisdictions == expected
 
 
 def test_mras_service_uses_safe_xml_parser():
@@ -152,9 +151,8 @@ def test_get_jurisdictions_rejects_external_entity_payload(flask_app, tmp_path):
     mock_response = MagicMock()
     mock_response.status_code = HTTPStatus.OK
     mock_response.content = xxe_xml.encode("utf-8")
-    with flask_app.app_context():
-        with patch.object(requests, "get", return_value=mock_response):
-            jurisdictions = MrasService.get_jurisdictions("BC1234567")
+    with flask_app.app_context(), patch.object(requests, "get", return_value=mock_response):
+        jurisdictions = MrasService.get_jurisdictions("BC1234567")
 
     dumped = str(jurisdictions)
     assert "SECRET_MRAS_XXE_CANARY" not in dumped

@@ -13,9 +13,10 @@
 # limitations under the License.
 """File processing rules and actions for the dissolution/putBackOn of a business (SP/GP)."""
 
-import defusedxml.ElementTree as Et
 from contextlib import suppress
 from http import HTTPStatus
+
+import defusedxml.ElementTree as Et
 
 from flask import current_app
 

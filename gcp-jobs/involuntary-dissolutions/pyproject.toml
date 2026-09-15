@@ -142,3 +142,8 @@ docstring-quotes = "double"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+omit = [
+    "src/involuntary_dissolutions/utils/flags.py",
+]

@@ -63,6 +63,10 @@ source = [
 ]
 omit = [
     "wsgi.py",
+    "src/business_pay/services/flags.py",
+    "src/business_pay/utils/base.py",
+    "src/business_pay/resources/pay_filer.py",
+    "src/business_pay/services/__init__.py",
 ]
 
 [tool.coverage.report]

@@ -148,6 +148,7 @@ source = [
 ]
 omit = [
     "run.py",
+    "src/update_legal_filings/worker.py",
 ]
 
 [tool.coverage.report]

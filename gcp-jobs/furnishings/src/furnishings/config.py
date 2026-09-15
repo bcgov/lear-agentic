@@ -39,7 +39,7 @@ class _Config:
 
     if not SECRET_KEY:
         SECRET_KEY = os.urandom(24)
-        print("WARNING: SECRET_KEY being set as a one-shot", file=sys.stderr)
+        sys.stderr.write("WARNING: SECRET_KEY being set as a one-shot\n")
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
