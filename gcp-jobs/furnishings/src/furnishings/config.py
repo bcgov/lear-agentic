@@ -35,7 +35,11 @@ class _Config:
     ACCOUNT_SVC_CLIENT_ID = os.getenv("ACCOUNT_SVC_CLIENT_ID", None)
     ACCOUNT_SVC_CLIENT_SECRET = os.getenv("ACCOUNT_SVC_CLIENT_SECRET", None)
 
-    SECRET_KEY = "a secret"
+    SECRET_KEY = os.getenv("SECRET_KEY", None)
+
+    if not SECRET_KEY:
+        SECRET_KEY = os.urandom(24)
+        print("WARNING: SECRET_KEY being set as a one-shot", file=sys.stderr)
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -146,12 +150,6 @@ class UnitTestingConfig(_Config):
 
 class ProductionConfig(_Config):
     """Production environment configuration."""
-
-    SECRET_KEY = os.getenv("SECRET_KEY", None)
-
-    if not SECRET_KEY:
-        SECRET_KEY = os.urandom(24)
-        print("WARNING: SECRET_KEY being set as a one-shot", file=sys.stderr)  # noqa: T201
 
     TESTING = False
     DEBUG = False

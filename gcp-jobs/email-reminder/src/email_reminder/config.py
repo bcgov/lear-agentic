@@ -46,7 +46,11 @@ class _Config:
     PUBLISHER_AUDIENCE = os.getenv("PUBLISHER_AUDIENCE", "https://pubsub.googleapis.com/google.pubsub.v1.Publisher")
     BUSINESS_EMAILER_TOPIC = os.getenv("BUSINESS_EMAILER_TOPIC")
 
-    SECRET_KEY = "a secret"
+    SECRET_KEY = os.getenv("SECRET_KEY", None)
+
+    if not SECRET_KEY:
+        SECRET_KEY = os.urandom(24)
+        print("WARNING: SECRET_KEY being set as a one-shot", file=sys.stderr)
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -95,12 +99,6 @@ class UnitTestingConfig(_Config):
 
 class ProductionConfig(_Config):
     """Production environment configuration."""
-
-    SECRET_KEY = os.getenv("SECRET_KEY", None)
-
-    if not SECRET_KEY:
-        SECRET_KEY = os.urandom(24)
-        print("WARNING: SECRET_KEY being set as a one-shot", file=sys.stderr)
 
     TESTING = False
     DEBUG = False

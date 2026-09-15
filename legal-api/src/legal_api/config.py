@@ -82,7 +82,11 @@ class _Config:  # pylint: disable=too-few-public-methods
     GO_LIVE_DATE = os.getenv("GO_LIVE_DATE")
 
     LD_SDK_KEY = os.getenv("LD_SDK_KEY", None)
-    SECRET_KEY = "a secret"
+    SECRET_KEY = os.getenv("SECRET_KEY", None)
+
+    if not SECRET_KEY:
+        SECRET_KEY = os.urandom(24)
+        print("WARNING: SECRET_KEY being set as a one-shot", file=sys.stderr)
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ALEMBIC_INI = "migrations/alembic.ini"
@@ -291,12 +295,6 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
 
 class ProdConfig(_Config):  # pylint: disable=too-few-public-methods
     """Production environment configuration."""
-
-    SECRET_KEY = os.getenv("SECRET_KEY", None)
-
-    if not SECRET_KEY:
-        SECRET_KEY = os.urandom(24)
-        print("WARNING: SECRET_KEY being set as a one-shot", file=sys.stderr)
 
     TESTING = False
     DEBUG = False

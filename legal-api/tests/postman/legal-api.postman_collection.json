@@ -2156,7 +2156,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+											"raw": "{\"username\":\"{{coops_updater_username}}\", \"password\":\"{{coops_updater_password}}\"}"
 										},
 										"url": {
 											"raw": "{{get_token_url}}",
@@ -2875,7 +2875,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+											"raw": "{\"username\":\"{{coops_updater_username}}\", \"password\":\"{{coops_updater_password}}\"}"
 										},
 										"url": {
 											"raw": "{{get_token_url}}",
@@ -3657,7 +3657,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+											"raw": "{\"username\":\"{{coops_updater_username}}\", \"password\":\"{{coops_updater_password}}\"}"
 										},
 										"url": {
 											"raw": "{{get_token_url}}",
@@ -4445,7 +4445,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+									"raw": "{\"username\":\"{{coops_updater_username}}\", \"password\":\"{{coops_updater_password}}\"}"
 								},
 								"url": {
 									"raw": "{{get_token_url}}",
@@ -5142,7 +5142,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+									"raw": "{\"username\":\"{{coops_updater_username}}\", \"password\":\"{{coops_updater_password}}\"}"
 								},
 								"url": {
 									"raw": "{{get_token_url}}",
@@ -6675,7 +6675,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+							"raw": "{\"username\":\"{{coops_updater_username}}\", \"password\":\"{{coops_updater_password}}\"}"
 						},
 						"url": {
 							"raw": "{{tokenUrl}}",
@@ -6697,7 +6697,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+									"raw": "{\"username\":\"{{coops_updater_username}}\", \"password\":\"{{coops_updater_password}}\"}"
 								},
 								"url": {
 									"raw": "{{get_token_url}}",
@@ -7597,7 +7597,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+									"raw": "{\"username\":\"{{coops_updater_username}}\", \"password\":\"{{coops_updater_password}}\"}"
 								},
 								"url": {
 									"raw": "{{get_token_url}}",
@@ -8131,7 +8131,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+									"raw": "{\"username\":\"{{coops_updater_username}}\", \"password\":\"{{coops_updater_password}}\"}"
 								},
 								"url": {
 									"raw": "{{get_token_url}}",
@@ -9374,7 +9374,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+									"raw": "{\"username\":\"{{coops_updater_username}}\", \"password\":\"{{coops_updater_password}}\"}"
 								},
 								"url": {
 									"raw": "{{get_token_url}}",
@@ -9816,7 +9816,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+									"raw": "{\"username\":\"{{coops_updater_username}}\", \"password\":\"{{coops_updater_password}}\"}"
 								},
 								"url": {
 									"raw": "{{get_token_url}}",

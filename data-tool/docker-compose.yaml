@@ -37,8 +37,8 @@ services:
     environment:
       PREFECT_CORE_VERSION: 1.1.0
       PREFECT_SERVER_DB_CMD: prefect-server database upgrade -y
-      PREFECT_SERVER__DATABASE__CONNECTION_URL: postgresql://prefect:test-password@postgres:5432/prefect_server
-      PREFECT_SERVER__HASURA__ADMIN_SECRET: hasura-secret-admin-secret
+      PREFECT_SERVER__DATABASE__CONNECTION_URL: postgresql://prefect:${POSTGRES_PASSWORD:-dev-only-change-me}@postgres:5432/prefect_server
+      PREFECT_SERVER__HASURA__ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET:-dev-only-change-me}
       PREFECT_SERVER__HASURA__HOST: hasura
     healthcheck:
       interval: 20s
@@ -59,7 +59,7 @@ services:
       postgres:
         condition: service_started
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgresql://prefect:test-password@postgres:5432/prefect_server
+      HASURA_GRAPHQL_DATABASE_URL: postgresql://prefect:${POSTGRES_PASSWORD:-dev-only-change-me}@postgres:5432/prefect_server
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_LOG_LEVEL: warn
       HASURA_GRAPHQL_QUERY_PLAN_CACHE_SIZE: 100
@@ -86,7 +86,7 @@ services:
     - max_connections=150
     environment:
       POSTGRES_DB: prefect_server
-      POSTGRES_PASSWORD: test-password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev-only-change-me}
       POSTGRES_USER: prefect
     healthcheck:
       interval: 10s
@@ -106,7 +106,7 @@ services:
       graphql:
         condition: service_started
     environment:
-      PREFECT_SERVER__HASURA__ADMIN_SECRET: hasura-secret-admin-secret
+      PREFECT_SERVER__HASURA__ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET:-dev-only-change-me}
       PREFECT_SERVER__HASURA__HOST: hasura
     image: prefecthq/server:core-1.1.0
     networks:
