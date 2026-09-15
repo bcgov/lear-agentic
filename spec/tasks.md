@@ -1,12 +1,5 @@
-# Tasks — {{SERVICE_NAME}}
-
-Derive from `spec.md` + `features/`. Prefer vertical slices.
-
-## Milestone 1
-
-- [ ] {{TASK-001}} — {{description}} — covers `features/{{…}}.feature` scenarios {{…}}
-- [ ] {{TASK-002}} — …
-
-## Backlog
-
-- [ ] …
+# Tasks
+- [x] LOG-014 document_service logging
+- [x] LOG-015 permissions denial context
+- [x] TEST-005 postman validate workflow
+- [x] Spec criteria + evidence
