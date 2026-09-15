@@ -1,0 +1,13 @@
+# Applied by SDLC workflows. Create with: gh label create <name> --color <hex> --description "<desc>"
+- name: needs-triage
+  color: "EDEDED"
+  description: New issue awaiting triage
+- name: needs-detail
+  color: "D93F0B"
+  description: Issue body is too thin — add problem / expected / actual / steps
+- name: ready-for-agent
+  color: "0E6027"
+  description: Safe to assign the Copilot coding agent
+- name: sdlc:review
+  color: "0E8A16"
+  description: Weekly SDLC metrics review issue

@@ -1,0 +1,8 @@
+# SDLC — implementation agents must not self-modify gates, constitution, or acceptance criteria.
+# Experiment fork owners (replace with ministry teams for production enrol).
+
+/.github/                          @kmandryk
+/constitution.md                   @kmandryk
+/.specify/memory/constitution.md   @kmandryk
+/spec/features/                    @kmandryk
+/sdlc.config.json                  @kmandryk
