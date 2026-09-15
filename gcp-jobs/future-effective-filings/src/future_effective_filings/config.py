@@ -20,6 +20,7 @@ directly or by accessing this configuration directly.
 """
 
 import os
+import sys
 
 from dotenv import find_dotenv, load_dotenv
 
@@ -75,7 +76,11 @@ class _Config:  # pylint: disable=too-few-public-methods
     PUBLISHER_AUDIENCE = os.getenv("PUBLISHER_AUDIENCE", "https://pubsub.googleapis.com/google.pubsub.v1.Publisher")
     BUSINESS_FILER_TOPIC = os.getenv("BUSINESS_FILER_TOPIC", "")
 
-    SECRET_KEY = "a secret"
+    SECRET_KEY = os.getenv("SECRET_KEY", None)
+
+    if not SECRET_KEY:
+        SECRET_KEY = os.urandom(24)
+        print("WARNING: SECRET_KEY being set as a one-shot", file=sys.stderr)
 
     TESTING = False
     DEBUG = False
@@ -102,12 +107,6 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
 
 class ProdConfig(_Config):  # pylint: disable=too-few-public-methods
     """Production environment configuration."""
-
-    SECRET_KEY = os.getenv("SECRET_KEY", None)
-
-    if not SECRET_KEY:
-        SECRET_KEY = os.urandom(24)
-        logging.warning("SECRET_KEY being set as a one-shot")
 
     TESTING = False
     DEBUG = False
