@@ -13,8 +13,8 @@
 # limitations under the License.
 """Common setup and fixtures for the pytest suite used by this service."""
 import contextlib
-import socket
 import json
+import socket
 
 import business_model_migrations
 import paramiko
