@@ -1,12 +1,4 @@
-# Tasks — {{SERVICE_NAME}}
-
-Derive from `spec.md` + `features/`. Prefer vertical slices.
-
-## Milestone 1
-
-- [ ] {{TASK-001}} — {{description}} — covers `features/{{…}}.feature` scenarios {{…}}
-- [ ] {{TASK-002}} — …
-
-## Backlog
-
-- [ ] …
+# Tasks
+- [x] Update colin-api-ci.yml passwords
+- [x] Env-based sql-versioning POSTGRES_URL + compose default
+- [x] Spec criteria + evidence
