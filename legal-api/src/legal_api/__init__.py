@@ -53,6 +53,7 @@ from legal_api.services import digital_credentials, flags, gcp_queue
 from legal_api.services.authz import cache
 from legal_api.translations import babel
 from legal_api.utils.auth import jwt
+from legal_api.utils.cors import resolve_cors_allow_origin
 from legal_api.utils.run_version import get_run_version
 from registry_schemas import __version__ as registry_schemas_version
 from structured_logging import StructuredLogging
@@ -124,7 +125,10 @@ def setup_jwt_manager(app, jwt_manager):
     def custom_auth_error_handler(ex):
         response = jsonify(ex.error)
         response.status_code = ex.status_code
-        response.headers["Access-Control-Allow-Origin"] = "*"
+        allowed_origin = resolve_cors_allow_origin()
+        if allowed_origin:
+            response.headers["Access-Control-Allow-Origin"] = allowed_origin
+            response.headers["Vary"] = "Origin"
         return response
     app.config["JWT_OIDC_AUTH_ERROR_HANDLER"] = custom_auth_error_handler
 

@@ -93,6 +93,9 @@ class _Config:  # pylint: disable=too-few-public-methods
     # legal api
     LEGAL_API_URL = os.getenv('BUSINESS_API_URL', '') + os.getenv('BUSINESS_API_VERSION_2', '')
 
+    # Browser CORS allowlist (comma-separated Origins). Empty ⇒ fail closed (no *).
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS', '')
+
     # service accounts
     ACCOUNT_SVC_AUTH_URL = os.getenv('ACCOUNT_SVC_AUTH_URL')
     ACCOUNT_SVC_CLIENT_ID = os.getenv('ACCOUNT_SVC_CLIENT_ID')

@@ -157,6 +157,9 @@ class _Config:  # pylint: disable=too-few-public-methods
     # Web socket settings
     WS_ALLOWED_ORIGINS = os.getenv("WS_ALLOWED_ORIGINS")
 
+    # Browser CORS allowlist (comma-separated Origins). Empty ⇒ fail closed (no *).
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "")
+
     # Digital Business Card configuration values (required to issue credentials)
     BUSINESS_SCHEMA_NAME = os.getenv("BUSINESS_SCHEMA_NAME")
     BUSINESS_SCHEMA_VERSION = os.getenv("BUSINESS_SCHEMA_VERSION")
