@@ -13,7 +13,7 @@
 # limitations under the License.
 """Processing admin actions."""
 
-import xml.etree.ElementTree as Et
+import defusedxml.ElementTree as Et
 from contextlib import suppress
 from http import HTTPStatus
 
