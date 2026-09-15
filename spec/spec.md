@@ -1,54 +1,13 @@
-# Spec — {{SERVICE_NAME}}
-
-> Technology-free. Describe *what* and *why*, not frameworks or cloud products.
+# Spec — data-tool lockfile + emailer dep cleanup (DEP-017 / DEP-019)
 
 ## Feature proposal
-
-The **Feature issue** is the proposal — link the GitHub issue (e.g. `#123`) and summarize the agreed outcome this spec implements.
-
-## Problem
-
-{{Who is stuck, and what pain do they have today?}}
+Issues **#36** (DEP-017) and **#56** (DEP-019).
 
 ## Outcome
+- `data-tool/requirements.lock` pins resolvable transitive PyPI deps (documented exclusions).
+- `business-emailer` no longer declares unused `Flask-Script` or `legacy-cgi`.
 
-{{Measurable outcome for the user / business.}}
-
-## Users & personas
-
-| Persona | Goal |
-| --- | --- |
-| {{…}} | {{…}} |
-
-## Scope
-
-### In scope (this release)
-
-- {{…}}
-
-### Out of scope
-
-- {{…}}
-
-## Journeys
-
-1. {{Happy path name}} — see `features/{{name}}.feature`
-2. {{…}}
-
-## Non-functional requirements
-
-- Accessibility: WCAG 2.1 AA
-- Privacy: {{classification + PIA status}}
-- Availability: {{…}}
-
-## Open questions
-
-- [ ] {{…}}
-
-## Sign-off (checkpoint 1)
-
+## Sign-off
 | Role | Name | Date |
 | --- | --- | --- |
-| Product / PM | | |
-| BA | | |
-| QA (acceptance ownership) | | |
+| Product / PM | local-agent | 2026-09-15 |
