@@ -19,17 +19,14 @@ Echo only Origins listed in CORS_ORIGINS (comma-separated env / config).
 from __future__ import annotations
 
 import os
-from typing import Iterable
+from collections.abc import Iterable
 
 
 def parse_cors_origins(raw: str | Iterable[str] | None) -> set[str]:
     """Parse an allowlist from a comma-separated string or iterable."""
     if raw is None:
         return set()
-    if isinstance(raw, str):
-        parts = raw.split(",")
-    else:
-        parts = list(raw)
+    parts = raw.split(",") if isinstance(raw, str) else list(raw)
     # Reject wildcard entries even if operators misconfigure the env.
     return {part.strip() for part in parts if part and part.strip() and part.strip() != "*"}
 

@@ -134,13 +134,13 @@ pycountry = ">=24.6.1,<25.0.0"
 pydantic = ">=2.10.6,<3.0.0"
 pytz = ">=2025.1,<2026.0"
 registry-schemas = {git = "https://github.com/bcgov/business-schemas.git", rev = "2.18.84"}
-sql-versioning = "*"
+sql-versioning = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/sql-versioning-alt"}
 
 [package.source]
 type = "git"
 url = "https://github.com/bcgov/lear-agentic.git"
-reference = "037720803"
-resolved_reference = "037720803e85ad815dc29f3b8964c8b5f672801b"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
 subdirectory = "python/common/business-registry-model"
 
 [[package]]
@@ -164,8 +164,8 @@ requests = ">=2.32.3,<3.0.0"
 [package.source]
 type = "git"
 url = "https://github.com/bcgov/lear-agentic.git"
-reference = "037720803"
-resolved_reference = "037720803e85ad815dc29f3b8964c8b5f672801b"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
 subdirectory = "python/common/business-registry-account"
 
 [[package]]
@@ -187,8 +187,8 @@ pytz = ">=2025.1,<2026.0"
 [package.source]
 type = "git"
 url = "https://github.com/bcgov/lear-agentic.git"
-reference = "037720803"
-resolved_reference = "037720803e85ad815dc29f3b8964c8b5f672801b"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
 subdirectory = "python/common/business-registry-common"
 
 [[package]]
@@ -1743,9 +1743,9 @@ sqlalchemy = ">=2.0.39,<3.0.0"
 
 [package.source]
 type = "git"
-url = "https://github.com/bcgov/lear.git"
-reference = "main"
-resolved_reference = "67cc9c452dcc602a9c0d740ebe059fd694180616"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
 subdirectory = "python/common/sql-versioning-alt"
 
 [[package]]
@@ -2004,4 +2004,4 @@ tomli = "*"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "1c9a8021718e14c509292e4b8c9ea2f7032012dd306f0a38cbc3f430c88da8e6"
+content-hash = "f77e8e1136b66f2df2fdb0268c66f6e1166a780dd523bba58abc6149d6484715"

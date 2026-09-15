@@ -1741,8 +1741,8 @@ sqlalchemy = ">=2.0.39,<3.0.0"
 [package.source]
 type = "git"
 url = "https://github.com/bcgov/lear-agentic.git"
-reference = "037720803"
-resolved_reference = "037720803e85ad815dc29f3b8964c8b5f672801b"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
 subdirectory = "python/common/sql-versioning-alt"
 
 [[package]]
@@ -2085,4 +2085,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "40519b66fe6de139342cd29d6cc91e8494f4fe9b38e0eb117a9889efb78cdebb"
+content-hash = "4134a3711ec6968c34ffa46c05e3dff82b1364babba7cf3d0b8a84385f6c7e2d"

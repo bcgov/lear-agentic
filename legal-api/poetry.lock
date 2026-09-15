@@ -322,7 +322,7 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 croniter = ">=6.0.0,<7.0.0"
@@ -337,11 +337,14 @@ pycountry = ">=24.6.1,<25.0.0"
 pydantic = ">=2.10.6,<3.0.0"
 pytz = ">=2025.1,<2026.0"
 registry-schemas = {git = "https://github.com/bcgov/business-schemas.git", rev = "2.18.84"}
-sql-versioning = "*"
+sql-versioning = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/sql-versioning-alt"}
 
 [package.source]
-type = "directory"
-url = "../python/common/business-registry-model"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
+subdirectory = "python/common/business-registry-model"
 
 [[package]]
 name = "business-registry-account"
@@ -351,7 +354,7 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 datedelta = ">=1.4,<2.0"
@@ -362,8 +365,11 @@ pytz = ">=2025.1,<2026.0"
 requests = ">=2.32.3,<3.0.0"
 
 [package.source]
-type = "directory"
-url = "../python/common/business-registry-account"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
+subdirectory = "python/common/business-registry-account"
 
 [[package]]
 name = "business-registry-common"
@@ -373,7 +379,7 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 datedelta = ">=1.4,<2.0"
@@ -382,8 +388,11 @@ python-dateutil = ">=2.9.0,<3.0.0"
 pytz = ">=2025.1,<2026.0"
 
 [package.source]
-type = "directory"
-url = "../python/common/business-registry-common"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
+subdirectory = "python/common/business-registry-common"
 
 [[package]]
 name = "business-registry-digital-credentials"
@@ -393,18 +402,21 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
-business-model = {path = "../business-registry-model", develop = true}
-business-registry-common = {path = "../business-registry-common", develop = true}
+business-model = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-model"}
+business-registry-common = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-common"}
 flask-jwt-oidc = "^0.8.0"
 pyjwt = "^2.8.0"
 requests = "^2.32.3"
 
 [package.source]
-type = "directory"
-url = "../python/common/business-registry-digital-credentials"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
+subdirectory = "python/common/business-registry-digital-credentials"
 
 [[package]]
 name = "business-registry-dissolution"
@@ -414,18 +426,21 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
-business-model = "*"
-business-registry-account = "*"
-business-registry-common = "*"
+business-model = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-model"}
+business-registry-account = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-account"}
+business-registry-common = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-common"}
 flask = ">=3.1.0,<4.0.0"
 python-dotenv = ">=1.1.0,<2.0.0"
 
 [package.source]
-type = "directory"
-url = "../python/common/business-registry-dissolution"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
+subdirectory = "python/common/business-registry-dissolution"
 
 [[package]]
 name = "cachelib"
@@ -3758,9 +3773,9 @@ sqlalchemy = ">=2.0.39,<3.0.0"
 
 [package.source]
 type = "git"
-url = "https://github.com/bcgov/lear.git"
-reference = "main"
-resolved_reference = "2a344a8e34dda17eef8168cb581e9af39228026e"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
 subdirectory = "python/common/sql-versioning-alt"
 
 [[package]]
@@ -4405,4 +4420,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "02bbc9a2d481838ecf89c55223af2749a2060cb5dfff2f8e511fbf312b903136"
+content-hash = "046f816275a86331385cff6e1c2bda9161868364091df89ed32c71c8fbf6c234"

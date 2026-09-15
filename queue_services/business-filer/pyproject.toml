@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.13,<3.14"
 
 dependencies = [
-    "business-model",
+    "business-model @ git+https://github.com/bcgov/lear-agentic.git@merge-train/ra-remediation#subdirectory=python/common/business-registry-model",
     "structured-logging @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/structured-logging",
     "gcp-queue @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/gcp-queue",
     "flask (>=3.1.0,<4.0.0)",
@@ -22,17 +22,17 @@ dependencies = [
     "pg8000 (>=1.31.2,<2.0.0)",
     "cloud-sql-connector @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/cloud-sql-connector",
     "gunicorn (>=23.0.0,<24.0.0)",
-    "business-registry-account",
-    "business-registry-common",
+    "business-registry-account @ git+https://github.com/bcgov/lear-agentic.git@merge-train/ra-remediation#subdirectory=python/common/business-registry-account",
+    "business-registry-common @ git+https://github.com/bcgov/lear-agentic.git@merge-train/ra-remediation#subdirectory=python/common/business-registry-common",
 ]
 
 [tool.poetry]
 packages = [{include = "business_filer", from = "src"}]
 
 [tool.poetry.dependencies]
-business-model = { path = "../../python/common/business-registry-model", develop = true }
-business-registry-account = { path = "../../python/common/business-registry-account", develop = true }
-business-registry-common = { path = "../../python/common/business-registry-common", develop = true }
+business-model = { git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-model" }
+business-registry-account = { git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-account" }
+business-registry-common = { git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-common" }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.11.4"

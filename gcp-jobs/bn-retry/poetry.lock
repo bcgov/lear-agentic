@@ -292,7 +292,7 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 croniter = ">=6.0.0,<7.0.0"
@@ -307,11 +307,14 @@ pycountry = ">=24.6.1,<25.0.0"
 pydantic = ">=2.10.6,<3.0.0"
 pytz = ">=2025.1,<2026.0"
 registry-schemas = {git = "https://github.com/bcgov/business-schemas.git", rev = "2.18.84"}
-sql-versioning = "*"
+sql-versioning = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/sql-versioning-alt"}
 
 [package.source]
-type = "directory"
-url = "../../python/common/business-registry-model"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
+subdirectory = "python/common/business-registry-model"
 
 [[package]]
 name = "cachetools"
@@ -2753,9 +2756,9 @@ sqlalchemy = ">=2.0.39,<3.0.0"
 
 [package.source]
 type = "git"
-url = "https://github.com/bcgov/lear.git"
-reference = "main"
-resolved_reference = "05a0c09709460b0ba216089efc2ebed555ed3a4e"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
 subdirectory = "python/common/sql-versioning-alt"
 
 [[package]]
@@ -3167,4 +3170,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "d3f504ed7eeb829680ded23edd72ed9f3db29729917ba2bd5a35d29f5f197a60"
+content-hash = "4450eae63a313ba69bd038569bb81f40e3c631d63dc21851f36da4af9ae67895"

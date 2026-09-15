@@ -20,7 +20,7 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 datedelta = ">=1.4,<2.0"
@@ -31,8 +31,11 @@ pytz = ">=2025.1,<2026.0"
 requests = ">=2.32.3,<3.0.0"
 
 [package.source]
-type = "directory"
-url = "../../python/common/business-registry-account"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
+subdirectory = "python/common/business-registry-account"
 
 [[package]]
 name = "cachelib"
@@ -990,4 +993,4 @@ tomli = "*"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "b52ee7cecfd512c327895e6d6b46f103d0c4331a0501165c25db4a1dc5bb9952"
+content-hash = "37dc577c77843e7da7fceaf85803999eb68a577345d0ed0cf9573318e717d915"

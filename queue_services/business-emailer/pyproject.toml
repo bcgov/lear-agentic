@@ -8,9 +8,9 @@ readme = "README.md"
 
 
 [tool.poetry.dependencies]
-business-model = { path = "../../python/common/business-registry-model", develop = true }
-business-registry-account = { path = "../../python/common/business-registry-account", develop = true }
-business-registry-common = { path = "../../python/common/business-registry-common", develop = true }
+business-model = { git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-model" }
+business-registry-account = { git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-account" }
+business-registry-common = { git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-common" }
 python = ">=3.13,<3.14"
 alembic = "1.15.2"
 aniso8601 = "10.0.0"

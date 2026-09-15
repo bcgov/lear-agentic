@@ -335,7 +335,7 @@ files = [
 
 [[package]]
 name = "business-model"
-version = "3.3.30"
+version = "3.4.15"
 description = ""
 optional = false
 python-versions = ">=3.13,<3.14"
@@ -355,14 +355,14 @@ pg8000 = ">=1.31.2,<2.0.0"
 pycountry = ">=24.6.1,<25.0.0"
 pydantic = ">=2.10.6,<3.0.0"
 pytz = ">=2025.1,<2026.0"
-registry-schemas = {git = "https://github.com/bcgov/business-schemas.git", rev = "2.18.69"}
-sql-versioning = {git = "https://github.com/bcgov/lear.git", rev = "main", subdirectory = "python/common/sql-versioning-alt"}
+registry-schemas = {git = "https://github.com/bcgov/business-schemas.git", rev = "2.18.84"}
+sql-versioning = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/sql-versioning-alt"}
 
 [package.source]
 type = "git"
-url = "https://github.com/bcgov/lear.git"
-reference = "main"
-resolved_reference = "b415feb9f1a091ecc87a3a353e3a0985da4d094c"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
 subdirectory = "python/common/business-registry-model"
 
 [[package]]
@@ -385,9 +385,9 @@ requests = ">=2.32.3,<3.0.0"
 
 [package.source]
 type = "git"
-url = "https://github.com/bcgov/lear.git"
-reference = "main"
-resolved_reference = "b415feb9f1a091ecc87a3a353e3a0985da4d094c"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
 subdirectory = "python/common/business-registry-account"
 
 [[package]]
@@ -408,9 +408,9 @@ pytz = ">=2025.1,<2026.0"
 
 [package.source]
 type = "git"
-url = "https://github.com/bcgov/lear.git"
-reference = "main"
-resolved_reference = "b415feb9f1a091ecc87a3a353e3a0985da4d094c"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
 subdirectory = "python/common/business-registry-common"
 
 [[package]]
@@ -421,18 +421,21 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
-business-model = "*"
-business-registry-account = "*"
-business-registry-common = "*"
+business-model = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-model"}
+business-registry-account = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-account"}
+business-registry-common = {git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-common"}
 flask = ">=3.1.0,<4.0.0"
 python-dotenv = ">=1.1.0,<2.0.0"
 
 [package.source]
-type = "directory"
-url = "../../python/common/business-registry-dissolution"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
+subdirectory = "python/common/business-registry-dissolution"
 
 [[package]]
 name = "cachelib"
@@ -2841,7 +2844,7 @@ rpds-py = ">=0.7.0"
 
 [[package]]
 name = "registry_schemas"
-version = "2.18.69"
+version = "2.18.84"
 description = "A short description of the project"
 optional = false
 python-versions = ">=3.6"
@@ -2859,8 +2862,8 @@ strict-rfc3339 = "*"
 [package.source]
 type = "git"
 url = "https://github.com/bcgov/business-schemas.git"
-reference = "2.18.69"
-resolved_reference = "25282bd6cf4de87e9dc6bc44f619ed723b64c7f2"
+reference = "2.18.84"
+resolved_reference = "cf41a551b08cb51afd3e88bec0eab155dc856b24"
 
 [[package]]
 name = "requests"
@@ -3190,9 +3193,9 @@ sqlalchemy = ">=2.0.39,<3.0.0"
 
 [package.source]
 type = "git"
-url = "https://github.com/bcgov/lear.git"
-reference = "main"
-resolved_reference = "0c44b367a8f6812c49f1142c11d0435e0edf6ed2"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "merge-train/ra-remediation"
+resolved_reference = "79f0cfc284d730faa6cae7135da51afde587b7f8"
 subdirectory = "python/common/sql-versioning-alt"
 
 [[package]]
@@ -3716,4 +3719,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "a2449a09bbaad3f3fcca2e8840ab40f8c1d142a68c6fb534d34a1a1a1c5a0816"
+content-hash = "d353ae36767470c72d91a2cdee210c160e31c9973c3e983661d830c349e871b0"

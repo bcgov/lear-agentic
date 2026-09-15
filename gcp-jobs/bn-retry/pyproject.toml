@@ -13,7 +13,7 @@ dependencies = [
     "simple-cloudevent @ git+https://github.com/daxiom/simple-cloudevent.py.git",
     "gcp-queue @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/gcp-queue",
     "structured-logging @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/structured-logging",
-    "business-model",
+    "business-model @ git+https://github.com/bcgov/lear-agentic.git@merge-train/ra-remediation#subdirectory=python/common/business-registry-model",
     "cloud-sql-connector @ git+https://github.com/bcgov/sbc-connect-common.git@42a520b3fc6f989d9401a34aa2267907ec1dc75f#subdirectory=python/cloud-sql-connector"
 ]
 
@@ -168,4 +168,4 @@ exclude_lines = [
 ]
 
 [tool.poetry.dependencies]
-business-model = { path = "../../python/common/business-registry-model", develop = true }
+business-model = { git = "https://github.com/bcgov/lear-agentic.git", rev = "merge-train/ra-remediation", subdirectory = "python/common/business-registry-model" }
