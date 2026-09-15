@@ -108,8 +108,12 @@ class DocumentService:
         try:
             c = c.decode()
             c = json.loads(c)
-        except Exception:
-            pass
+        except Exception as err:  # noqa: BLE001 - best-effort decode for tests/callers
+            # LOG-014: do not silently swallow parse failures
+            current_app.logger.warning(
+                "document_service get_content could not decode/parse response body: %s",
+                err,
+            )
         return c
 
     # pylint: disable=too-many-arguments

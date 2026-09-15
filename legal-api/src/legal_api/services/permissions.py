@@ -139,6 +139,15 @@ class PermissionService:
         return None
 
     @staticmethod
+    def _actor_audit_fields(token_info: dict | None = None) -> tuple[str, bool]:
+        """Return non-PII actor id and whether realm roles are present."""
+        if token_info is None:
+            token_info = getattr(g, "jwt_oidc_token_info", {}) or {}
+        actor_id = token_info.get("sub") or "anonymous"
+        roles = (token_info.get("realm_access") or {}).get("roles") or []
+        return actor_id, bool(roles)
+
+    @staticmethod
     def get_filing_permission_mapping(legal_type: str, filing_sub_type: str) -> dict:
         """Return dictionary containing rules for filings are allowed for different roles."""
         def get_dissolution_mapping():
@@ -213,21 +222,37 @@ class PermissionService:
     def has_permissions_for_action(filing_type: str, legal_type: str, filing_sub_type: str) -> bool:
         """Check if the user has permissions for the action per permissions table."""
         authorized_permissions = PermissionService.get_authorized_permissions_for_user()
+        actor_id, roles_present = PermissionService._actor_audit_fields()
+        resource = f"filing_type:{filing_type}/legal_type:{legal_type}/sub_type:{filing_sub_type}"
         if not authorized_permissions or not isinstance(authorized_permissions, list):
-            current_app.logger.error("No authorized permissions found for user.")
+            current_app.logger.error(
+                "No authorized permissions found for user. actor_id=%s roles_present=%s resource=%s",
+                actor_id,
+                roles_present,
+                resource,
+            )
             return False
-  
+
         if filing_type in PermissionService.STAFF_FILING_TYPES:
             if ListFilingsPermissionsAllowed.STAFF_FILINGS.value not in authorized_permissions:
-                current_app.logger.warning(f"User does not have permission for staff filing type: {filing_type}")
+                current_app.logger.warning(
+                    "Permission denied for staff filing. actor_id=%s roles_present=%s resource=%s",
+                    actor_id,
+                    roles_present,
+                    resource,
+                )
                 return False
             return True
-        
+
         roles_in_filings = PermissionService.find_roles_for_filing_type(filing_type, legal_type, filing_sub_type)
         if roles_in_filings in authorized_permissions:
             return True
-        else:
-            current_app.logger.warning(f"User does not have permission for filing type: {filing_type}")
+        current_app.logger.warning(
+            "Permission denied for filing type. actor_id=%s roles_present=%s resource=%s",
+            actor_id,
+            roles_present,
+            resource,
+        )
         return False
 
     @staticmethod
@@ -235,6 +260,13 @@ class PermissionService:
         """Check if the user has the required permission."""
         authorized_permissions = PermissionService.get_authorized_permissions_for_user()
         if required_permission not in authorized_permissions:
+            actor_id, roles_present = PermissionService._actor_audit_fields()
+            current_app.logger.warning(
+                "Permission denied (403). actor_id=%s roles_present=%s resource=%s",
+                actor_id,
+                roles_present,
+                required_permission,
+            )
             return Error(
                 HTTPStatus.FORBIDDEN,
                 [{

@@ -1,0 +1,60 @@
+name: Legal API Postman validate
+
+# TEST-005: syntax-validate Postman collection/environment without live secrets or HTTP calls.
+on:
+  pull_request:
+    paths:
+      - "legal-api/tests/postman/**"
+      - ".github/workflows/legal-api-postman-validate.yml"
+  push:
+    paths:
+      - "legal-api/tests/postman/**"
+      - ".github/workflows/legal-api-postman-validate.yml"
+
+jobs:
+  validate-postman-syntax:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: legal-api/tests/postman
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install newman (provides postman-collection)
+        run: npm install --no-save newman@6
+      - name: Syntax-validate collection and environment (no network)
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const { Collection, VariableScope } = require('postman-collection');
+
+          const collectionRaw = JSON.parse(fs.readFileSync('legal-api.postman_collection.json', 'utf8'));
+          const envRaw = JSON.parse(fs.readFileSync('legal-dev.postman_environment.json', 'utf8'));
+
+          const collection = new Collection(collectionRaw);
+          if (!collection.items || collection.items.count() < 1) {
+            console.error('Collection has no items');
+            process.exit(1);
+          }
+
+          // Environment files are VariableScope-shaped; accept parse + values array.
+          if (!Array.isArray(envRaw.values)) {
+            console.error('Environment missing values[]');
+            process.exit(1);
+          }
+          // Ensure no accidental live client secrets remain as non-placeholder literals
+          // (SECRET-002 hygiene): empty/placeholder OK.
+          for (const v of envRaw.values) {
+            if (v && /client_secret/i.test(String(v.key || '')) && v.value && !String(v.value).includes('{{')) {
+              const val = String(v.value);
+              if (val.length > 0 && !/placeholder|changeme|redacted|example|do-not-commit|^</i.test(val)) {
+                console.error(`Refusing non-placeholder client_secret value for key=${v.key}`);
+                process.exit(1);
+              }
+            }
+          }
+
+          console.log(`OK collection="${collection.name}" items=${collection.items.count()} env_vars=${envRaw.values.length}`);
+          NODE
