@@ -119,7 +119,7 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 croniter = ">=6.0.0,<7.0.0"
@@ -137,8 +137,11 @@ registry-schemas = {git = "https://github.com/bcgov/business-schemas.git", rev =
 sql-versioning = "*"
 
 [package.source]
-type = "directory"
-url = "../business-registry-model"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "037720803"
+resolved_reference = "037720803e85ad815dc29f3b8964c8b5f672801b"
+subdirectory = "python/common/business-registry-model"
 
 [[package]]
 name = "business-registry-account"
@@ -148,7 +151,7 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 datedelta = ">=1.4,<2.0"
@@ -159,8 +162,11 @@ pytz = ">=2025.1,<2026.0"
 requests = ">=2.32.3,<3.0.0"
 
 [package.source]
-type = "directory"
-url = "../business-registry-account"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "037720803"
+resolved_reference = "037720803e85ad815dc29f3b8964c8b5f672801b"
+subdirectory = "python/common/business-registry-account"
 
 [[package]]
 name = "business-registry-common"
@@ -170,7 +176,7 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 datedelta = ">=1.4,<2.0"
@@ -179,8 +185,11 @@ python-dateutil = ">=2.9.0,<3.0.0"
 pytz = ">=2025.1,<2026.0"
 
 [package.source]
-type = "directory"
-url = "../business-registry-common"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "037720803"
+resolved_reference = "037720803e85ad815dc29f3b8964c8b5f672801b"
+subdirectory = "python/common/business-registry-common"
 
 [[package]]
 name = "cachelib"
@@ -1995,4 +2004,4 @@ tomli = "*"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "809d9ec64b99f9eb18f9290f880b71c03c1523be23cff6f0d6ed6078399ffe85"
+content-hash = "1c9a8021718e14c509292e4b8c9ea2f7032012dd306f0a38cbc3f430c88da8e6"

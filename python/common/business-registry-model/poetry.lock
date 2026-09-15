@@ -1733,14 +1733,17 @@ optional = false
 python-versions = ">=3.9,<4.0"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 sqlalchemy = ">=2.0.39,<3.0.0"
 
 [package.source]
-type = "directory"
-url = "../sql-versioning-alt"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "037720803"
+resolved_reference = "037720803e85ad815dc29f3b8964c8b5f672801b"
+subdirectory = "python/common/sql-versioning-alt"
 
 [[package]]
 name = "sqlalchemy"
@@ -2082,4 +2085,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "c192ff8e58af472b0f030d565b4db39be59f96c7357fafc48c03dee1ad010332"
+content-hash = "40519b66fe6de139342cd29d6cc91e8494f4fe9b38e0eb117a9889efb78cdebb"

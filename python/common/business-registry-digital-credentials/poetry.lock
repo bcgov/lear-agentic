@@ -111,7 +111,7 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 croniter = ">=6.0.0,<7.0.0"
@@ -129,8 +129,11 @@ registry-schemas = {git = "https://github.com/bcgov/business-schemas.git", rev =
 sql-versioning = "*"
 
 [package.source]
-type = "directory"
-url = "../business-registry-model"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "037720803"
+resolved_reference = "037720803e85ad815dc29f3b8964c8b5f672801b"
+subdirectory = "python/common/business-registry-model"
 
 [[package]]
 name = "business-registry-common"
@@ -140,7 +143,7 @@ optional = false
 python-versions = ">=3.13,<3.14"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 datedelta = ">=1.4,<2.0"
@@ -149,8 +152,11 @@ python-dateutil = ">=2.9.0,<3.0.0"
 pytz = ">=2025.1,<2026.0"
 
 [package.source]
-type = "directory"
-url = "../business-registry-common"
+type = "git"
+url = "https://github.com/bcgov/lear-agentic.git"
+reference = "037720803"
+resolved_reference = "037720803e85ad815dc29f3b8964c8b5f672801b"
+subdirectory = "python/common/business-registry-common"
 
 [[package]]
 name = "cachelib"
@@ -2141,4 +2147,4 @@ tomli = "*"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<3.14"
-content-hash = "cd5389cc66a680f3b5e10039709740d003703d4932256f3039402c80a32e73e2"
+content-hash = "60c515a6401b5e770c2cb3cd95b76247c0a472c1e26b5e9bc6d98f06170bbed3"

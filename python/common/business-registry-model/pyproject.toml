@@ -8,7 +8,7 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = [
-    "sql-versioning",
+    "sql-versioning @ git+https://github.com/bcgov/lear-agentic.git@037720803#subdirectory=python/common/sql-versioning-alt",
     "registry-schemas @ git+https://github.com/bcgov/business-schemas.git@2.18.84",
     "flask-migrate (>=4.1.0,<5.0.0)",
     "pg8000 (>=1.31.2,<2.0.0)",
@@ -27,9 +27,6 @@ dependencies = [
 packages = [{include = "business_model", from = "src"},
             {include = "business_model_migrations", from = "src"}
            ]
-
-[tool.poetry.dependencies]
-sql-versioning = { path = "../sql-versioning-alt", develop = true }
 
 [tool.poetry.group.test.dependencies]
 freezegun = "^1.5.1"
