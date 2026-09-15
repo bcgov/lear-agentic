@@ -354,15 +354,18 @@ def get_colin_event_id(colin_id=None):
 @jwt.has_one_of_roles([UserRoles.colin])
 def get_last_event_id(identifier):
     """Get the last colin event id for the identifier."""
-    query = db.session.execute(text(
-        f"""
-        select max(colin_event_id) from colin_event_ids
-            join filings on filings.id = colin_event_ids.filing_id
-            join businesses on businesses.id = filings.business_id
-        where businesses.identifier = '{identifier}'
-        limit 1
-        """
-    ))
+    query = db.session.execute(
+        text(
+            """
+            select max(colin_event_id) from colin_event_ids
+                join filings on filings.id = colin_event_ids.filing_id
+                join businesses on businesses.id = filings.business_id
+            where businesses.identifier = :identifier
+            limit 1
+            """
+        ),
+        {"identifier": identifier},
+    )
     last_event_id = query.scalar()
     if not last_event_id:
         return {"message": "No colin ids found"}, HTTPStatus.NOT_FOUND

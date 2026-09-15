@@ -15,6 +15,7 @@
 """Tests to assure the colin sync end-point."""
 import copy
 from http import HTTPStatus
+from urllib.parse import quote
 
 from sqlalchemy import text
 
@@ -157,6 +158,56 @@ def test_post_colin_last_update(session, client, jwt):
                      )
     assert rv.status_code == HTTPStatus.CREATED
     assert rv.json == {'maxId': colin_id}
+
+
+# criterion: @R-22.1
+def test_get_last_event_id_for_identifier(session, client, jwt):
+    """@R-22.1 — known business returns max COLIN event id via parameterized lookup."""
+    identifier = 'CP7654321'
+    b = factory_business(identifier)
+    factory_business_mailing_address(b)
+    filing = factory_completed_filing(b, ANNUAL_REPORT)
+    colin_event_id = ColinEventId()
+    colin_event_id.colin_event_id = 98765
+    filing.colin_event_ids.append(colin_event_id)
+    filing.save()
+
+    rv = client.get(f'/api/v2/businesses/internal/last-event-id/{identifier}',
+                    headers=create_header(jwt, [COLIN_SVC_ROLE]))
+    assert rv.status_code == HTTPStatus.OK
+    assert rv.json == {'maxId': 98765}
+
+
+# criterion: @R-22.2
+def test_get_last_event_id_not_found(session, client, jwt):
+    """@R-22.2 — unknown identifier returns not found."""
+    rv = client.get('/api/v2/businesses/internal/last-event-id/CP0000000',
+                    headers=create_header(jwt, [COLIN_SVC_ROLE]))
+    assert rv.status_code == HTTPStatus.NOT_FOUND
+    assert rv.json == {'message': 'No colin ids found'}
+
+
+# criterion: @R-22.3
+def test_get_last_event_id_rejects_sql_injection_payload(session, client, jwt):
+    """@R-22.3 — identifier with SQL metacharacters is bound, not executed as SQL."""
+    # Seed a real business so a successful injection could return data.
+    identifier = 'CP7654321'
+    b = factory_business(identifier)
+    factory_business_mailing_address(b)
+    filing = factory_completed_filing(b, ANNUAL_REPORT)
+    colin_event_id = ColinEventId()
+    colin_event_id.colin_event_id = 11111
+    filing.colin_event_ids.append(colin_event_id)
+    filing.save()
+
+    malicious = "CP7654321' OR '1'='1"
+    rv = client.get(
+        f'/api/v2/businesses/internal/last-event-id/{quote(malicious, safe="")}',
+        headers=create_header(jwt, [COLIN_SVC_ROLE]),
+    )
+    # Bound parameter: no matching identifier, so not found (not a leaked maxId).
+    assert rv.status_code == HTTPStatus.NOT_FOUND
+    assert rv.json == {'message': 'No colin ids found'}
 
 
 def test_get_completed_filings_for_colin_corps_correction(session, client, jwt):
