@@ -1,12 +1,6 @@
-# Tasks — {{SERVICE_NAME}}
+# Tasks — DEP-011 / DEP-012 / DEP-016
 
-Derive from `spec.md` + `features/`. Prefer vertical slices.
-
-## Milestone 1
-
-- [ ] {{TASK-001}} — {{description}} — covers `features/{{…}}.feature` scenarios {{…}}
-- [ ] {{TASK-002}} — …
-
-## Backlog
-
-- [ ] …
+- [x] TASK-001 — Bump emailer LaunchDarkly + modernize flags.py — `@R-711.1`
+- [x] TASK-002 — Relax emailer protobuf pin — `@R-712.1`
+- [x] TASK-003 — Relax business-bn protobuf pin — `@R-716.1`
+- [x] TASK-004 — Refresh poetry locks; spec / evidence for #30 #31 #35
