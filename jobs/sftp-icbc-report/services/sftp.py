@@ -35,12 +35,21 @@ class SFTPService:  # pylint: disable=too-few-public-methods
         logging.info('Start _connect sftp_host: %s', sftp_host)
 
         cnopts = CnOpts()
-        # only for local development set this to false .
-        if os.getenv('SFTP_VERIFY_HOST').lower() == 'false':
+        # Default: verify host keys. Set SFTP_VERIFY_HOST=false only for local/dev.
+        verify_host = (os.getenv('SFTP_VERIFY_HOST') or 'true').strip().lower() != 'false'
+        if not verify_host:
+            logging.warning(
+                'SFTP host key verification disabled (SFTP_VERIFY_HOST=false) — local/dev only'
+            )
             cnopts.hostkeys = None
         else:
-            ftp_host_key_data = os.getenv('SFTP_HOST_KEY', '').encode()
-            key = paramiko.RSAKey(data=decodebytes(ftp_host_key_data))
+            ftp_host_key_data = (os.getenv('SFTP_HOST_KEY') or '').strip()
+            if not ftp_host_key_data:
+                raise ValueError(
+                    'SFTP_HOST_KEY is required when host verification is enabled '
+                    '(default). Set SFTP_HOST_KEY, or SFTP_VERIFY_HOST=false for local only.'
+                )
+            key = paramiko.RSAKey(data=decodebytes(ftp_host_key_data.encode()))
             cnopts.hostkeys.add(sftp_host, 'ssh-rsa', key)
 
         sftp_priv_key_file = os.path.join(os.getcwd(), r'data/') + 'sftp_priv_key_file'
